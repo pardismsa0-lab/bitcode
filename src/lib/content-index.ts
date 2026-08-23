@@ -8,6 +8,12 @@ import { EXTRA_LESSONS_B } from "./content5";
 import { EXTRA_LESSONS_C } from "./content6";
 import { VIBE_A } from "./content-vibe1";
 import { VIBE_B } from "./content-vibe2";
+import { BULK1 } from "./bulk1";
+import { BULK2 } from "./bulk2";
+import { BULK3 } from "./bulk3";
+import { BULK4 } from "./bulk4";
+import { BULK5 } from "./bulk5";
+import { BULK6 } from "./bulk6";
 import { DEEP_A } from "./deepdive1";
 import { DEEP_B } from "./deepdive2";
 import { DEEP_C } from "./deepdive3";
@@ -63,6 +69,11 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
   "v-l1": [{ visual: "vibeLoop", title: "شبیه‌ساز: حلقه وایب کدینگ", pos: 2 }],
 };
 
+/* ---------- درس‌های حجمی (bulk) هر دوره ---------- */
+const BULK: Record<string, Lesson[]> = {
+  ...BULK1, ...BULK2, ...BULK3, ...BULK4, ...BULK5, ...BULK6,
+};
+
 /* ---------- درس‌های تکمیلی هر دوره ---------- */
 const COURSE_EXTRAS: Record<string, string[]> = {
   py: ["py-x1", "py-x2"],
@@ -113,7 +124,8 @@ const build = (
     ...(opts.after ?? []).flatMap((id) => pick(id).lessons),
   ]);
   const extras = (COURSE_EXTRAS[courseId] ?? []).map(lesson);
-  return { id: courseId, intro: base.intro, outcomes: base.outcomes, lessons: [...core, ...extras] };
+  const bulk = BULK[courseId] ?? [];
+  return { id: courseId, intro: base.intro, outcomes: base.outcomes, lessons: [...core, ...extras, ...bulk] };
 };
 
 /* ---------- دوره وایب کدینگ ---------- */
@@ -129,7 +141,7 @@ const VIBE: CourseContent = {
     "بازبینی، تست و ایمن‌سازی خروجی هوش مصنوعی",
     "آمادگی برای عصر Agentها، MCP و مهارت‌های کمیاب جدید",
   ],
-  lessons: [...VIBE_A, ...VIBE_B],
+  lessons: [...VIBE_A, ...VIBE_B, ...(BULK.vibe ?? [])],
 };
 
 /*
@@ -140,8 +152,8 @@ const RAW: Record<string, CourseContent> = {
   dsa: build(pick("c3"), "dsa"),
   algo: build(pick("c4"), "algo"),
   se: build(pick("c5"), "se"),
-  react: build(pick("c9"), "react", { before: ["c8"] }),
-  node: build(pick("c10"), "node"),
+  react: build(pick("c9"), "react", { before: ["c7", "c8"] }),
+  node: build(pick("c10"), "node", { after: ["c16"] }),
   sql: build(pick("c11"), "sql"),
   arch: build(pick("c12"), "arch"),
   test: build(pick("c13"), "test"),
@@ -159,12 +171,12 @@ const RAW: Record<string, CourseContent> = {
       "درک مدل Git: Commit، Branch و Merge",
       "همکاری تیمی با GitHub و Pull Request",
     ],
-    lessons: finalizeLessons([
+    lessons: [...finalizeLessons([
       pick("c2").lessons[0],
       pick("c2").lessons[1],
       pick("c14").lessons[0],
       lesson("se-x1"),
-    ]),
+    ]), ...(BULK.git ?? [])],
   },
 
   java: build(pick("n-java"), "java"),
