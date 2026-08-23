@@ -205,7 +205,7 @@ export default function Hero() {
             </h1>
 
             <p className="text-dim leading-9 mt-7 max-w-xl text-[15px]">
-              از اولین <b className="text-mist">print("hello")</b> تا معماری سیستم‌های توزیع‌شده؛ ۱۷ دوره تخصصی،
+              از اولین <b className="text-mist">print("hello")</b> تا معماری سیستم‌های توزیع‌شده؛ ۱۸ دوره تخصصی،
               مسیر یادگیری ترم‌بندی‌شده، پروژه‌های واقعی با Code Review انسانی و منتورینگ هفتگی —
               همه‌چیز برای تبدیل‌شدن به یک مهندس نرم‌افزار کامل.
             </p>

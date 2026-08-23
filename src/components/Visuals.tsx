@@ -970,7 +970,73 @@ const REGISTRY: Record<string, () => ReactNode> = {
   sdlc: () => <Sdlc />,
   microvmono: () => <Microvmono />,
   dockerLayers: () => <DockerLayers />,
+  vibeLoop: () => <VibeLoop />,
 };
+
+/* ---------- حلقه وایب کدینگ ---------- */
+function VibeLoop() {
+  const steps = [
+    { t: "مشخصات (Spec)", d: "هدف، صفحات، قوانین و «صریحاً نمی‌خواهم‌ها» را بنویس — جهتِ همه حلقه‌های بعدی همین‌جا تعیین می‌شود و گران‌ترین دقیقه پروژه است." },
+    { t: "پرامپت دقیق", d: "نقش، زمینه، یک وظیفه، قیدها و قرارداد خروجی. هر تصمیمی که تو نگیری، Agent می‌گیرد — و سلیقه تو را ندارد." },
+    { t: "تولید کد", d: "Agent چند فایل را همزمان می‌سازد. تازه‌کارها اینجا هیجان‌زده می‌شوند؛ حرفه‌ای‌ها شکاک می‌مانند." },
+    { t: "اجرا و مشاهده", d: "برنامه را بالا بیاور و مثل کاربر واقعی کلیک کن — با ورودی بد، کلیک تکراری و فیلد خالی. دمو تنها قاضیِ صادق است." },
+    { t: "بازخورد جهت‌دار", d: "دقیق بگو چه چیزی کج است («ذخیره دوبار صدا می‌شود») و Commit بزن — بعد دور بعد. بازنویسی نه؛ اصلاح." },
+  ];
+  const [i, setI] = useState(0);
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (reduced) return;
+    const id = window.setInterval(() => setI((v) => (v + 1) % steps.length), 2800);
+    return () => window.clearInterval(id);
+  }, [reduced]);
+
+  return (
+    <div className="border border-linec bg-night-900/80 rounded-md p-5 select-none">
+      <div className="flex flex-wrap items-center justify-center gap-y-3" dir="rtl">
+        {steps.map((s, si) => (
+          <span key={s.t} className="flex items-center">
+            <button
+              onClick={() => setI(si)}
+              className={`px-3 py-2 rounded-md border text-[12px] font-bold transition-all duration-500 cursor-pointer whitespace-nowrap ${
+                si === i
+                  ? "bg-amber text-night-900 border-amber scale-110 shadow-[0_0_24px_rgba(255,180,84,0.3)]"
+                  : "border-linec text-dim hover:border-amber/50 hover:text-mist"
+              }`}
+            >
+              {fa(si + 1)}. {s.t}
+            </button>
+            {si < steps.length - 1 && (
+              <svg viewBox="0 0 24 24" className={`w-5 h-5 mx-1 shrink-0 transition-colors duration-500 ${si === i ? "text-amber" : "text-faint"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 6-6 6 6 6" />
+              </svg>
+            )}
+          </span>
+        ))}
+        <span className="flex items-center text-faint text-[11px] mr-2">
+          <svg viewBox="0 0 24 24" className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" />
+          </svg>
+          و دوباره…
+        </span>
+      </div>
+
+      <div key={i} className="pop-in mt-4 border border-linec bg-night-800/60 rounded-md p-4 min-h-[84px]">
+        <p className="font-bold text-amber text-sm">{steps[i].t}</p>
+        <p className="text-dim text-[13px] leading-7 mt-1.5">{steps[i].d}</p>
+      </div>
+
+      <div className="flex items-center justify-between mt-3 text-[11px] text-faint">
+        <span>هر دور، محصول نزدیک‌تر می‌شود — به‌شرط اینکه دورها کوچک بمانند</span>
+        <div className="flex gap-1.5">
+          {steps.map((_, di) => (
+            <button key={di} onClick={() => setI(di)} aria-label={`مرحله ${fa(di + 1)}`} className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${di === i ? "w-6 bg-amber" : "w-2.5 bg-night-600 hover:bg-faint"}`} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Visual({ name }: { name: string }) {
   const render = REGISTRY[name];

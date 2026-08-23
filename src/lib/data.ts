@@ -46,6 +46,7 @@ export const courses: Course[] = [
   { id: "ml", title: "یادگیری ماشین کاربردی", cat: "data", level: "پیشرفته", hours: 58, sessions: 34, students: 1740, rating: 4.7, price: 3400000, instructor: "دکتر بردیا افشار", skills: ["Python", "Scikit-learn", "مدل‌سازی", "ارزیابی"], hue: "coral" },
   { id: "devops", title: "DevOps: داکر، کوبرنتیز و CI/CD", cat: "infra", level: "پیشرفته", hours: 52, sessions: 30, students: 1620, rating: 4.8, price: 3100000, popular: true, instructor: "مهندس نگار رستمی", skills: ["Docker", "Kubernetes", "GitHub Actions", "مانیتورینگ"], hue: "cyan" },
   { id: "git", title: "لینوکس، ترمینال و Git از صفر", cat: "infra", level: "مقدماتی", hours: 30, sessions: 20, students: 5120, rating: 4.9, price: 0, instructor: "مهندس نگار رستمی", skills: ["Shell", "دستورات لینوکس", "Git و GitHub", "SSH"], hue: "teal" },
+  { id: "vibe", title: "وایب کدینگ؛ برنامه‌نویسی هم‌نشین با هوش مصنوعی", cat: "data", level: "مقدماتی", hours: 34, sessions: 22, students: 6240, rating: 4.9, price: 0, popular: true, instructor: "مهندس کیان مرادی", skills: ["Prompt Engineering", "Cursor و Copilot", "ساخت MVP", "Agentها"], hue: "coral" },
 ];
 
 export interface Phase {
@@ -59,7 +60,7 @@ export interface Phase {
 }
 
 export const phases: Phase[] = [
-  { id: 1, term: "فاز ۱", title: "پی‌ریزی: برنامه‌نویسی مقدماتی", weeks: 8, desc: "اولین خطوط کد را با پایتون می‌نویسی و با ترمینال، لینوکس و Git آشنا می‌شوی؛ ابزارهایی که هر روزِ یک مهندس را می‌سازند.", tags: ["مبانی پایتون", "لینوکس و Git", "حل تمرین هفتگی"], hue: "teal" },
+  { id: 1, term: "فاز ۱", title: "پی‌ریزی: برنامه‌نویسی مقدماتی", weeks: 8, desc: "اولین خطوط کد را با پایتون می‌نویسی و با ترمینال، لینوکس و Git آشنا می‌شوی؛ ابزارهایی که هر روزِ یک مهندس را می‌سازند.", tags: ["مبانی پایتون", "لینوکس و Git", "وایب کدینگ با AI"], hue: "teal" },
   { id: 2, term: "فاز ۲", title: "شی‌گرایی و ساختمان داده‌ها", weeks: 10, desc: "تفکر شی‌گرا را با جاوا تمرین می‌کنی و ساختمان داده‌های کلیدی را پیاده‌سازی می‌کنی تا کدت ساختار پیدا کند.", tags: ["شی‌گرایی جاوا", "ساختمان داده‌ها", "پروژه کتابخانه"], hue: "amber" },
   { id: 3, term: "فاز ۳", title: "عمق علوم کامپیوتر", weeks: 12, desc: "الگوریتم‌های پیشرفته، سیستم‌عامل و شبکه؛ همان چیزی که مهندسان خودساخته را از کدنویس‌ها جدا می‌کند.", tags: ["الگوریتم پیشرفته", "سیستم‌عامل", "شبکه"], hue: "cyan" },
   { id: 4, term: "فاز ۴", title: "مهندسی نرم‌افزار کلاسیک", weeks: 8, desc: "چرخه حیات، نیازمندی‌ها و مدل‌سازی UML را یاد می‌گیری و اولین سیستم واقعی را روی کاغذ طراحی می‌کنی.", tags: ["مهندسی نرم‌افزار", "UML", "پایگاه داده"], hue: "coral" },
@@ -103,6 +104,7 @@ export const mentors: Mentor[] = [
   { name: "مهندس سارا محمدی", role: "مهندس ارشد بک‌اند · مدرس Clean Code", tags: ["جاوا", "Node.js", "کد تمیز"], coursesCount: 4, students: 4850, rating: 4.8, initials: "سم", hue: "teal" },
   { name: "دکتر بردیا افشار", role: "مدرس المپیاد کامپیوتر · متخصص الگوریتم", tags: ["الگوریتم", "گراف", "برنامه‌نویسی رقابتی"], coursesCount: 3, students: 3720, rating: 5.0, initials: "با", hue: "cyan" },
   { name: "مهندس نگار رستمی", role: "مهندس فرانت‌اند و DevOps · منتور پروژه‌های تیمی", tags: ["React", "Docker", "CI/CD"], coursesCount: 5, students: 5230, rating: 4.9, initials: "نر", hue: "coral" },
+  { name: "مهندس کیان مرادی", role: "متخصص توسعه با هوش مصنوعی · سازنده ۱۲ محصول Vibe-first", tags: ["Vibe Coding", "LLM و Agent", "Prompt Design"], coursesCount: 2, students: 6240, rating: 4.9, initials: "کم", hue: "coral" },
 ];
 
 export interface Testimonial {

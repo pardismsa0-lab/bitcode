@@ -1,16 +1,28 @@
-import type { CourseContent, Lesson } from "./content-types";
+import type { Block, CourseContent, Lesson } from "./content-types";
 import { CONTENT_A } from "./content1";
 import { CONTENT_B } from "./content2";
 import { CONTENT_C } from "./content3";
 import { CONTENT_NEW } from "./content-new";
 import { EXTRA_LESSONS_A } from "./content4";
 import { EXTRA_LESSONS_B } from "./content5";
+import { EXTRA_LESSONS_C } from "./content6";
+import { VIBE_A } from "./content-vibe1";
+import { VIBE_B } from "./content-vibe2";
+import { DEEP_A } from "./deepdive1";
+import { DEEP_B } from "./deepdive2";
+import { DEEP_C } from "./deepdive3";
+import { DEEP_D } from "./deepdive4";
+import { DEEP_E } from "./deepdive5";
 
 const ALL: CourseContent[] = [...CONTENT_A, ...CONTENT_B, ...CONTENT_C, ...CONTENT_NEW];
-const EXTRAS: Lesson[] = [...EXTRA_LESSONS_A, ...EXTRA_LESSONS_B];
 
 const byId = new Map(ALL.map((c) => [c.id, c]));
-const lessonById = new Map(EXTRAS.map((l) => [l.id, l]));
+const lessonById = new Map(
+  [...EXTRA_LESSONS_A, ...EXTRA_LESSONS_B, ...EXTRA_LESSONS_C].map((l) => [l.id, l])
+);
+
+/* لایه «عمیق‌تر»: متن تکمیلی مفصل برای درس‌های پایه */
+const DEEP: Record<string, Block[]> = { ...DEEP_A, ...DEEP_B, ...DEEP_C, ...DEEP_D, ...DEEP_E };
 
 const pick = (id: string): CourseContent => {
   const c = byId.get(id);
@@ -23,7 +35,7 @@ const lesson = (id: string): Lesson => {
   return l;
 };
 
-/* ---------- شبیه‌سازهای تزریق‌شده به درس‌های پایه ---------- */
+/* ---------- شبیه‌سازهای تزریق‌شده به درس‌ها ---------- */
 const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> = {
   "c3-l1": [{ visual: "bigo", title: "شبیه‌ساز: منحنی‌های پیچیدگی", pos: 2 }],
   "c3-l2": [
@@ -48,54 +60,87 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
   "n-java-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: مرجع در Stack، شی در Heap", pos: 2 }],
   "c11-l2": [{ visual: "hashTable", title: "شبیه‌ساز: ایندکس، هشِ دیتابیس", pos: 2 }],
   "c2-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: متغیر و حافظه", pos: 3 }],
+  "v-l1": [{ visual: "vibeLoop", title: "شبیه‌ساز: حلقه وایب کدینگ", pos: 2 }],
 };
 
 /* ---------- درس‌های تکمیلی هر دوره ---------- */
 const COURSE_EXTRAS: Record<string, string[]> = {
-  py: ["py-x1"],
+  py: ["py-x1", "py-x2"],
   dsa: ["dsa-x1", "dsa-x2", "dsa-x3"],
   algo: ["algo-x1", "algo-x2", "algo-x3"],
   se: ["se-x1"],
   java: ["java-x1"],
+  cpp: ["cpp-x1"],
   os: ["os-x1"],
+  dp: ["dp-x1"],
   net: ["net-x1"],
-  react: ["react-x1"],
-  node: ["node-x1"],
+  react: ["react-x1", "react-x2"],
+  node: ["node-x1", "node-x2"],
   sql: ["sql-x1"],
   arch: ["arch-x1"],
   devops: ["devops-x1"],
   ml: ["ml-x1"],
+  test: ["test-x1"],
   git: ["se-x1"],
 };
 
-const injectVisuals = (content: CourseContent): CourseContent => ({
-  ...content,
-  lessons: content.lessons.map((l) => {
-    const extra = VISUALS[l.id];
-    if (!extra) return l;
-    const blocks = [...l.blocks];
-    [...extra].sort((a, b) => b.pos - a.pos).forEach((e) =>
-      blocks.splice(e.pos, 0, { k: "visual", visual: e.visual, title: e.title })
-    );
-    return { ...l, blocks };
-  }),
-});
+/* ---------- تزریق‌ها ---------- */
+const injectVisualsLesson = (l: Lesson): Lesson => {
+  const extra = VISUALS[l.id];
+  if (!extra) return l;
+  const blocks = [...l.blocks];
+  [...extra].sort((a, b) => b.pos - a.pos).forEach((e) =>
+    blocks.splice(e.pos, 0, { k: "visual", visual: e.visual, title: e.title })
+  );
+  return { ...l, blocks };
+};
 
-const build = (base: CourseContent, courseId: string): CourseContent => {
-  const withVisuals = injectVisuals(base);
+const applyDeep = (l: Lesson): Lesson => {
+  const deep = DEEP[l.id];
+  return deep ? { ...l, blocks: [...l.blocks, ...deep] } : l;
+};
+
+const finalizeLessons = (ls: Lesson[]): Lesson[] => ls.map(injectVisualsLesson).map(applyDeep);
+
+const build = (
+  base: CourseContent,
+  courseId: string,
+  opts: { before?: string[]; after?: string[] } = {}
+): CourseContent => {
+  const core = finalizeLessons([
+    ...(opts.before ?? []).flatMap((id) => pick(id).lessons),
+    ...base.lessons,
+    ...(opts.after ?? []).flatMap((id) => pick(id).lessons),
+  ]);
   const extras = (COURSE_EXTRAS[courseId] ?? []).map(lesson);
-  return extras.length ? { ...withVisuals, lessons: [...withVisuals.lessons, ...extras] } : withVisuals;
+  return { id: courseId, intro: base.intro, outcomes: base.outcomes, lessons: [...core, ...extras] };
+};
+
+/* ---------- دوره وایب کدینگ ---------- */
+const VIBE: CourseContent = {
+  id: "vibe",
+  intro:
+    "فوریه ۲۰۲۵ واژه‌ای ساخته شد که صنعت را تکان داد: Vibe Coding — برنامه‌نویسی با هم‌نشینی هوش مصنوعی، جایی که تو مسیر را مشخص می‌کنی و Agentها پارو می‌زنند. این دوره رایگان، از فلسفه و تاریخچه شروع می‌کند، مهندسی پرامپت و جعبه‌ابزار را می‌سازد، یک MVP واقعی را در یک روز بالا می‌آورد و با کیفیت، امنیت و آینده Agentها تمام می‌شود. پیش‌نیاز: آشنایی مقدماتی با برنامه‌نویسی در هر زبانی.",
+  outcomes: [
+    "درک عمیق حلقه وایب و جای درستش — کجا رها کنی، کجا فرمان بگیری",
+    "نوشتن Spec و پرامپت‌های مهندسی‌شده با الگوهای تکرارشونده",
+    "تسلط بر جریان کاری Cursor، Copilot و Agentها",
+    "ساخت یک MVP کامل از صفر تا دموی قابل‌ارائه",
+    "بازبینی، تست و ایمن‌سازی خروجی هوش مصنوعی",
+    "آمادگی برای عصر Agentها، MCP و مهارت‌های کمیاب جدید",
+  ],
+  lessons: [...VIBE_A, ...VIBE_B],
 };
 
 /*
   نگاشت شناسه دوره‌های data.ts به محتوای آموزشی
 */
 const RAW: Record<string, CourseContent> = {
-  py: build(pick("c1"), "py"),
+  py: build(pick("c1"), "py", { after: ["c6"] }),
   dsa: build(pick("c3"), "dsa"),
   algo: build(pick("c4"), "algo"),
   se: build(pick("c5"), "se"),
-  react: build(pick("c9"), "react"),
+  react: build(pick("c9"), "react", { before: ["c8"] }),
   node: build(pick("c10"), "node"),
   sql: build(pick("c11"), "sql"),
   arch: build(pick("c12"), "arch"),
@@ -114,7 +159,12 @@ const RAW: Record<string, CourseContent> = {
       "درک مدل Git: Commit، Branch و Merge",
       "همکاری تیمی با GitHub و Pull Request",
     ],
-    lessons: [pick("c2").lessons[0], pick("c2").lessons[1], pick("c14").lessons[0], lesson("se-x1")],
+    lessons: finalizeLessons([
+      pick("c2").lessons[0],
+      pick("c2").lessons[1],
+      pick("c14").lessons[0],
+      lesson("se-x1"),
+    ]),
   },
 
   java: build(pick("n-java"), "java"),
@@ -122,9 +172,7 @@ const RAW: Record<string, CourseContent> = {
   os: build(pick("n-os"), "os"),
   dp: build(pick("n-dp"), "dp"),
   net: build(pick("n-net"), "net"),
+  vibe: VIBE,
 };
-
-/* تزریق شبیه‌سازها به درس‌های ترکیبی دوره git */
-RAW.git = injectVisuals(RAW.git);
 
 export const COURSE_CONTENT: Record<string, CourseContent> = RAW;

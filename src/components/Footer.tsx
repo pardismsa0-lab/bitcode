@@ -114,6 +114,7 @@ export default function Footer() {
                 "توسعه فرانت‌اند با React",
                 "معماری نرم‌افزار و میکروسرویس‌ها",
                 "DevOps: داکر و کوبرنتیز",
+                "وایب کدینگ؛ برنامه‌نویسی با هوش مصنوعی",
               ].map((l) => (
                 <li key={l}><a href="#courses" className="hover:text-teal transition-colors">{l}</a></li>
               ))}
