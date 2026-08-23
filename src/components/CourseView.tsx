@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { courses, categories, type Course } from "../lib/data";
-import { COURSE_CONTENT } from "../lib/content3";
+import { COURSE_CONTENT } from "../lib/content-index";
 import type { Block, Lesson, Quiz } from "../lib/content-types";
 import { Reveal, fa, faGroup, usePrefersReducedMotion } from "../lib/hooks";
 import { CatIcon, IconArrow, IconCheck, IconClock, IconSession, IconSpark, IconUsers } from "./Icons";
@@ -265,6 +265,21 @@ export default function CourseView({ courseId, onBack, completed, onToggleLesson
   const [lessonIdx, setLessonIdx] = useState(0);
   const topRef = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
+
+  if (!course || !content) {
+    return (
+      <main className="max-w-3xl mx-auto px-4 pt-48 pb-32 text-center">
+        <p className="font-display text-4xl text-mist">محتوای این دوره در حال آماده‌سازی است</p>
+        <p className="text-dim mt-4 leading-8">درس‌نامه این دوره به‌زودی منتشر می‌شود؛ تا آن زمان دوره‌های دیگر را ببین.</p>
+        <button
+          onClick={onBack}
+          className="mt-8 inline-flex items-center gap-2 bg-amber text-night-900 font-bold rounded-md px-7 py-3 hover:bg-[#ffc775] transition-colors"
+        >
+          بازگشت به فهرست دوره‌ها
+        </button>
+      </main>
+    );
+  }
 
   const lesson = content.lessons[lessonIdx];
   const doneCount = content.lessons.filter((l) => completed.includes(l.id)).length;

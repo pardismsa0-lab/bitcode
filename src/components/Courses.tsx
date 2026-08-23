@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { categories, courses, type CatId, type Hue } from "../lib/data";
-import { COURSE_CONTENT } from "../lib/content3";
+import { COURSE_CONTENT } from "../lib/content-index";
 import { Reveal, fa, faGroup } from "../lib/hooks";
 import { CatIcon, IconCheck, IconClock, IconPlay, IconSearch, IconSession, IconSpark, IconUsers } from "./Icons";
 import { HUES, LevelBar, SectionHead, Stars } from "./Shared";
@@ -116,7 +116,13 @@ export default function Courses({
             const progCount = progTotal > 0 ? Math.min(prog.length, progTotal) : 0;
             return (
               <Reveal key={c.id} delay={(i % 3) * 90}>
-                <article className={`group corners h-full flex flex-col border border-linec bg-night-900/70 rounded-md p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(2,8,16,0.5)] ${HUE_HOVER[c.hue].card}`}>
+                <article
+  onClick={() => onOpen(c.id)}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => { if (e.key === "Enter") onOpen(c.id); }}
+  className={`group corners h-full flex flex-col border border-linec bg-night-900/70 rounded-md p-5 transition-all duration-300 cursor-pointer hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(2,8,16,0.5)] ${HUE_HOVER[c.hue].card}`}
+>
                   <div className="flex items-center justify-between">
                     <span className={`inline-flex items-center gap-2 text-[11px] font-semibold border rounded px-2.5 py-1 ${hue.chip}`}>
                       <CatIcon k={c.cat} className="w-3.5 h-3.5" />
@@ -181,17 +187,15 @@ export default function Courses({
                         </span>
                       )}
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => onOpen(c.id)}
-                          className={`group flex items-center gap-1.5 text-sm font-semibold rounded-md px-3.5 py-2 transition-all duration-300 border ${hue.chip} hover:-translate-y-0.5`}
-                        >
-                          <IconPlay className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
+<button
+  onClick={(e) => { e.stopPropagation(); onOpen(c.id); }}
+  className={`group flex items-center gap-1.5 text-sm font-semibold rounded-md px-3.5 py-2 transition-all duration-300 border ${hue.chip} hover:-translate-y-0.5`}
+>                          <IconPlay className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
                           مشاهده محتوا
                         </button>
-                        <button
-                          onClick={() => onToggleEnroll(c.id)}
-                          className={`flex items-center gap-1.5 text-sm font-semibold rounded-md px-4 py-2 transition-all duration-300 border ${
-                            isEnrolled
+<button
+  onClick={(e) => { e.stopPropagation(); onToggleEnroll(c.id); }}
+  className={`flex items-center gap-1.5 text-sm font-semibold rounded-md px-4 py-2 transition-all duration-300 border ${                            isEnrolled
                               ? "bg-teal/10 text-teal border-teal/40"
                               : "border-linec text-dim hover:bg-amber hover:text-night-900 hover:border-amber hover:font-bold"
                           }`}
