@@ -19,6 +19,13 @@ import { DEEP_B } from "./deepdive2";
 import { DEEP_C } from "./deepdive3";
 import { DEEP_D } from "./deepdive4";
 import { DEEP_E } from "./deepdive5";
+import { RICH1 } from "./rich1";
+import { RICH2 } from "./rich2";
+import { RICH3 } from "./rich3";
+import { RICH4 } from "./rich4";
+
+/* درس‌های «غنی» — استاندارد آموزشی کامل؛ اولویت هر دوره */
+const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4 };
 
 const ALL: CourseContent[] = [...CONTENT_A, ...CONTENT_B, ...CONTENT_C, ...CONTENT_NEW];
 
@@ -123,9 +130,10 @@ const build = (
     ...base.lessons,
     ...(opts.after ?? []).flatMap((id) => pick(id).lessons),
   ]);
+  const rich = RICH[courseId] ?? [];
   const extras = (COURSE_EXTRAS[courseId] ?? []).map(lesson);
   const bulk = BULK[courseId] ?? [];
-  return { id: courseId, intro: base.intro, outcomes: base.outcomes, lessons: [...core, ...extras, ...bulk] };
+  return { id: courseId, intro: base.intro, outcomes: base.outcomes, lessons: [...rich, ...core, ...extras, ...bulk] };
 };
 
 /* ---------- دوره وایب کدینگ ---------- */
@@ -171,7 +179,7 @@ const RAW: Record<string, CourseContent> = {
       "درک مدل Git: Commit، Branch و Merge",
       "همکاری تیمی با GitHub و Pull Request",
     ],
-    lessons: [...finalizeLessons([
+    lessons: [...(RICH.git ?? []), ...finalizeLessons([
       pick("c2").lessons[0],
       pick("c2").lessons[1],
       pick("c14").lessons[0],
