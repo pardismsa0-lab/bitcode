@@ -6,6 +6,7 @@ import { Reveal, fa, faGroup, usePrefersReducedMotion } from "../lib/hooks";
 import { CatIcon, IconArrow, IconCheck, IconClock, IconSession, IconSpark, IconUsers } from "./Icons";
 import { HUES, LevelBar, Stars } from "./Shared";
 import CodeBlock from "./CodeBlock";
+import Visual from "./Visuals";
 
 /* ---------- بلوک‌های محتوا ---------- */
 function BlockView({ b, first }: { b: Block; first: boolean }) {
@@ -62,6 +63,12 @@ function BlockView({ b, first }: { b: Block; first: boolean }) {
           <p className="font-display text-lg text-amber mb-1.5">{b.term}</p>
           <p className="text-dim text-[14px] leading-8">{b.t}</p>
         </aside>
+      );
+    case "visual":
+      return (
+        <div className="my-6">
+          <Visual name={b.visual} />
+        </div>
       );
     case "table":
       return (

@@ -6,7 +6,8 @@ export type Block =
   | { k: "tip"; title: string; t: string }
   | { k: "warn"; title: string; t: string }
   | { k: "def"; term: string; t: string }
-  | { k: "table"; head: string[]; rows: string[][] };
+  | { k: "table"; head: string[]; rows: string[][] }
+  | { k: "visual"; visual: string; title: string };
 
 export interface Quiz {
   q: string;
