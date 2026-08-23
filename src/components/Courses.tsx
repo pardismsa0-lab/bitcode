@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { categories, courses, type CatId, type Hue } from "../lib/data";
+import { COURSE_CONTENT } from "../lib/content3";
 import { Reveal, fa, faGroup } from "../lib/hooks";
-import { CatIcon, IconCheck, IconClock, IconSearch, IconSession, IconSpark, IconUsers } from "./Icons";
+import { CatIcon, IconCheck, IconClock, IconPlay, IconSearch, IconSession, IconSpark, IconUsers } from "./Icons";
 import { HUES, LevelBar, SectionHead, Stars } from "./Shared";
 
 const HUE_HOVER: Record<Hue, { card: string; title: string }> = {
@@ -13,10 +14,19 @@ const HUE_HOVER: Record<Hue, { card: string; title: string }> = {
 
 const catLabel = (id: CatId) => categories.find((c) => c.id === id)?.label ?? "";
 
-export default function Courses() {
+export default function Courses({
+  enrolled,
+  onToggleEnroll,
+  onOpen,
+  progress,
+}: {
+  enrolled: Set<string>;
+  onToggleEnroll: (id: string) => void;
+  onOpen: (id: string) => void;
+  progress: Record<string, string[]>;
+}) {
   const [cat, setCat] = useState<CatId | "all">("all");
   const [query, setQuery] = useState("");
-  const [enrolled, setEnrolled] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     const q = query.trim();
@@ -26,14 +36,6 @@ export default function Courses() {
       return `${c.title} ${c.skills.join(" ")} ${c.instructor}`.includes(q);
     });
   }, [cat, query]);
-
-  const toggle = (id: string) =>
-    setEnrolled((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
 
   return (
     <section id="courses" className="max-w-7xl mx-auto px-4 py-24">
@@ -109,6 +111,9 @@ export default function Courses() {
           {filtered.map((c, i) => {
             const hue = HUES[c.hue];
             const isEnrolled = enrolled.has(c.id);
+            const prog = progress[c.id] ?? [];
+            const progTotal = COURSE_CONTENT[c.id]?.lessons.length ?? 0;
+            const progCount = progTotal > 0 ? Math.min(prog.length, progTotal) : 0;
             return (
               <Reveal key={c.id} delay={(i % 3) * 90}>
                 <article className={`group corners h-full flex flex-col border border-linec bg-night-900/70 rounded-md p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(2,8,16,0.5)] ${HUE_HOVER[c.hue].card}`}>
@@ -130,7 +135,12 @@ export default function Courses() {
                     )}
                   </div>
 
-                  <h3 className={`font-display text-[22px] leading-9 mt-4 text-mist transition-colors ${HUE_HOVER[c.hue].title}`}>{c.title}</h3>
+                  <h3
+  onClick={() => onOpen(c.id)}
+  className={`font-display text-[22px] leading-9 mt-4 text-mist transition-colors cursor-pointer ${HUE_HOVER[c.hue].title}`}
+>
+  {c.title}
+</h3>
                   <p className="text-xs text-faint mt-1">{c.instructor}</p>
 
                   <div className="flex flex-wrap gap-1.5 mt-3">
@@ -146,26 +156,51 @@ export default function Courses() {
                     <span className="flex items-center gap-1.5"><Stars value={c.rating} className="w-3 h-3" /> <b className="text-mist">{fa(c.rating)}</b></span>
                   </div>
 
-                  <div className="mt-auto pt-5 border-t border-linec/70 flex items-center justify-between" style={{ marginTop: "auto" }}>
-                    {c.price === 0 ? (
-                      <span className="font-bold text-teal">رایگان</span>
-                    ) : (
-                      <span className="text-sm">
-                        <b className="text-mist font-display text-lg">{faGroup(c.price)}</b>
-                        <span className="text-faint text-xs mr-1">تومان</span>
-                      </span>
+                  <div className="mt-auto pt-5 border-t border-linec/70">
+                    {progTotal > 0 && progCount > 0 && (
+                      <div className="mb-4">
+                        <div className="flex justify-between text-[11px] text-faint mb-1.5">
+                          <span>{progCount === progTotal ? "دوره تمام شد! 🎉" : "پیشرفت شما در این دوره"}</span>
+                          <span className="font-code">{fa(progCount)}/{fa(progTotal)} درس</span>
+                        </div>
+                        <div className="h-1.5 bg-night-700 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-700 ${progCount === progTotal ? "bg-teal" : "bg-amber"}`}
+                            style={{ width: `${Math.max(6, (progCount / progTotal) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
                     )}
-                    <button
-                      onClick={() => toggle(c.id)}
-                      className={`flex items-center gap-1.5 text-sm font-semibold rounded-md px-4 py-2 transition-all duration-300 border ${
-                        isEnrolled
-                          ? "bg-teal/10 text-teal border-teal/40"
-                          : "border-linec text-dim hover:bg-amber hover:text-night-900 hover:border-amber hover:font-bold"
-                      }`}
-                    >
-                      {isEnrolled && <IconCheck className="w-4 h-4" />}
-                      {isEnrolled ? "ثبت شدی!" : "ثبت‌نام"}
-                    </button>
+                    <div className="flex items-center justify-between gap-2">
+                      {c.price === 0 ? (
+                        <span className="font-bold text-teal">رایگان</span>
+                      ) : (
+                        <span className="text-sm">
+                          <b className="text-mist font-display text-lg">{faGroup(c.price)}</b>
+                          <span className="text-faint text-xs mr-1">تومان</span>
+                        </span>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onOpen(c.id)}
+                          className={`group flex items-center gap-1.5 text-sm font-semibold rounded-md px-3.5 py-2 transition-all duration-300 border ${hue.chip} hover:-translate-y-0.5`}
+                        >
+                          <IconPlay className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
+                          مشاهده محتوا
+                        </button>
+                        <button
+                          onClick={() => onToggleEnroll(c.id)}
+                          className={`flex items-center gap-1.5 text-sm font-semibold rounded-md px-4 py-2 transition-all duration-300 border ${
+                            isEnrolled
+                              ? "bg-teal/10 text-teal border-teal/40"
+                              : "border-linec text-dim hover:bg-amber hover:text-night-900 hover:border-amber hover:font-bold"
+                          }`}
+                        >
+                          {isEnrolled && <IconCheck className="w-4 h-4" />}
+                          {isEnrolled ? "ثبت شدی!" : "ثبت‌نام"}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </article>
               </Reveal>

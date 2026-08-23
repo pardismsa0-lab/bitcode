@@ -10,7 +10,7 @@ const NAV = [
   { id: "faq", label: "سوالات" },
 ];
 
-export default function Header() {
+export default function Header({ onHome, onNav }: { onHome: () => void; onNav: (id: string) => void }) {
   const [progress, setProgress] = useState(0);
   const [open, setOpen] = useState(false);
 
@@ -50,33 +50,33 @@ export default function Header() {
       {/* هدر اصلی */}
       <div className="relative bg-night-950/90 backdrop-blur-sm border-b border-linec">
         <div className="max-w-7xl mx-auto px-4 h-[68px] flex items-center justify-between gap-4">
-          <a href="#top" className="flex items-center gap-3 group">
+          <button onClick={onHome} className="flex items-center gap-3 group cursor-pointer" aria-label="صفحه اصلی">
             <LogoMark className="w-10 h-10 transition-transform duration-500 group-hover:rotate-[8deg]" />
-            <span className="leading-tight">
+            <span className="leading-tight text-right">
               <span className="block font-display text-[22px] text-mist">بیت‌کد</span>
               <span className="block font-code text-[9px] tracking-[0.4em] text-faint" dir="ltr">ACADEMY</span>
             </span>
-          </a>
+          </button>
 
           <nav className="hidden lg:flex items-center gap-7">
             {NAV.map((n) => (
-              <a
+              <button
                 key={n.id}
-                href={`#${n.id}`}
-                className="relative text-sm text-dim hover:text-mist transition-colors py-2 after:absolute after:bottom-0 after:right-0 after:h-[2px] after:w-full after:bg-amber after:origin-right after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+                onClick={() => onNav(n.id)}
+                className="relative text-sm text-dim hover:text-mist transition-colors py-2 after:absolute after:bottom-0 after:right-0 after:h-[2px] after:w-full after:bg-amber after:origin-right after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 cursor-pointer"
               >
                 {n.label}
-              </a>
+              </button>
             ))}
           </nav>
 
           <div className="flex items-center gap-3">
-            <a
-              href="#courses"
-              className="hidden sm:inline-flex items-center gap-2 bg-amber text-night-900 font-bold text-sm rounded-md px-5 py-2.5 transition-all duration-300 hover:bg-[#ffc775] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(255,180,84,0.25)]"
+            <button
+              onClick={() => onNav("courses")}
+              className="hidden sm:inline-flex items-center gap-2 bg-amber text-night-900 font-bold text-sm rounded-md px-5 py-2.5 transition-all duration-300 hover:bg-[#ffc775] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(255,180,84,0.25)] cursor-pointer"
             >
               شروع رایگان
-            </a>
+            </button>
             <button
               onClick={() => setOpen((v) => !v)}
               className="lg:hidden w-10 h-10 grid place-items-center border border-linec rounded-md text-dim hover:text-mist hover:border-amber/50 transition-colors"
@@ -98,14 +98,13 @@ export default function Header() {
       <div className={`lg:hidden overflow-hidden bg-night-900/98 border-b border-linec transition-[max-height] duration-500 ease-in-out ${open ? "max-h-96" : "max-h-0"}`}>
         <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col">
           {NAV.map((n) => (
-            <a
+            <button
               key={n.id}
-              href={`#${n.id}`}
-              onClick={() => setOpen(false)}
-              className="py-3 border-b border-linec/60 last:border-0 text-dim hover:text-amber transition-colors text-sm"
+              onClick={() => { setOpen(false); onNav(n.id); }}
+              className="py-3 border-b border-linec/60 last:border-0 text-dim hover:text-amber transition-colors text-sm text-right cursor-pointer"
             >
               {n.label}
-            </a>
+            </button>
           ))}
         </nav>
       </div>
