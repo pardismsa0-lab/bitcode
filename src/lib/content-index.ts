@@ -23,9 +23,11 @@ import { RICH1 } from "./rich1";
 import { RICH2 } from "./rich2";
 import { RICH3 } from "./rich3";
 import { RICH4 } from "./rich4";
+import { RICH5 } from "./rich5";
+import { RICH6 } from "./rich6";
 
 /* درس‌های «غنی» — استاندارد آموزشی کامل؛ اولویت هر دوره */
-const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4 };
+const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4, ...RICH5, ...RICH6 };
 
 const ALL: CourseContent[] = [...CONTENT_A, ...CONTENT_B, ...CONTENT_C, ...CONTENT_NEW];
 
