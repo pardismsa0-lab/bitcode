@@ -25,9 +25,11 @@ import { RICH3 } from "./rich3";
 import { RICH4 } from "./rich4";
 import { RICH5 } from "./rich5";
 import { RICH6 } from "./rich6";
+import { RICH7_NET } from "./rich7";
 
 /* درس‌های «غنی» — استاندارد آموزشی کامل؛ اولویت هر دوره */
 const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4, ...RICH5, ...RICH6 };
+RICH.net = [...(RICH.net ?? []), ...RICH7_NET];
 
 const ALL: CourseContent[] = [...CONTENT_A, ...CONTENT_B, ...CONTENT_C, ...CONTENT_NEW];
 
@@ -69,6 +71,8 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
   "c12-l1": [{ visual: "microvmono", title: "شبیه‌ساز: سبک‌های معماری", pos: 2 }],
   "n-net-l1": [{ visual: "layers", title: "شبیه‌ساز: لایه‌های شبکه", pos: 2 }],
   "n-net-l2": [{ visual: "httpCycle", title: "شبیه‌ساز: چرخه یک درخواست", pos: 2 }],
+  "net-r2": [{ visual: "tcpHandshake", title: "شبیه‌ساز: دست‌دادن سه‌راهی TCP", pos: 2 }],
+  "net-r3": [{ visual: "subnetCalc", title: "ابزار تعاملی: محاسبه‌گر زیرشبکه", pos: 2 }],
   "n-os-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: Stack و Heap", pos: 2 }],
   "n-os-l2": [{ visual: "deadlock", title: "شبیه‌ساز: بن‌بست", pos: 2 }],
   "n-cpp-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: حافظه Stack و Heap", pos: 2 }],

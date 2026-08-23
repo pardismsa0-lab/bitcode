@@ -950,6 +950,182 @@ function DockerLayers() {
   );
 }
 
+/* ---------- دست‌دادن سه‌راهی TCP ---------- */
+function TcpHandshake() {
+  const reduced = usePrefersReducedMotion();
+  const [step, setStep] = useState(0);
+  // مراحل: 0=آماده، 1=SYN، 2=SYN-ACK، 3=ACK(اتصال)، 4=DATA، 5=ACK داده، 6=FIN/بسته
+  const STEPS = [
+    { label: "آماده", note: "هنوز اتصالی نیست؛ کلاینت می‌خواهد گفتگو را شروع کند." },
+    { label: "SYN →", note: "کلاینت SYN می‌فرستد: «می‌خواهم وصل شوم؛ شماره ترتیب من 1000»." },
+    { label: "← SYN-ACK", note: "سرور قبول می‌کند: «شماره من 5000، و 1001 تو را تأیید می‌کنم»." },
+    { label: "ACK → (اتصال برقرار)", note: "کلاینت تأیید می‌کند: «5001 گرفتم». حالا دو طرف شماره‌ها را می‌دانند." },
+    { label: "DATA → (200 بایت)", note: "داده با شماره ترتیب 1001 می‌رود؛ یعنی بایت‌های 1001 تا 1200." },
+    { label: "← ACK=1201", note: "سرور می‌گوید «تا 1200 گرفتم؛ بعدی را از 1201 بفرست». اگر نرسد، بازفرستادن." },
+    { label: "FIN ⇄ (پایان)", note: "هر دو طرف با FIN مهربانانه اتصال را می‌بندند و تأیید می‌کنند." },
+  ];
+  const play = () => {
+    if (reduced) {
+      setStep((s) => (s + 1) % STEPS.length);
+      return;
+    }
+    setStep(0);
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setStep(i);
+      if (i >= STEPS.length - 1) window.clearInterval(id);
+    }, 950);
+  };
+
+  // کدام بسته الان «در حال حرکت» است
+  const moving = !reduced && step > 0 && step < STEPS.length - 1;
+  const dir = step === 2 || step === 5 ? "left" : "right";
+
+  return (
+    <div className="border border-linec bg-night-900/80 rounded-md p-5 select-none" dir="ltr">
+      <div className="flex items-center justify-between mb-3">
+        <span className="font-code text-xs text-cyan border border-cyan/30 bg-cyan/5 rounded px-2 py-1">TCP · three-way handshake</span>
+        <button onClick={play} className="text-xs font-bold bg-amber text-night-900 rounded-md px-4 py-1.5 hover:bg-[#ffc775] transition-colors cursor-pointer">
+          {step === 0 ? "شروع اتصال" : "پخش دوباره"}
+        </button>
+      </div>
+
+      <div className="relative grid grid-cols-[1fr_auto_1fr] gap-2 items-stretch min-h-[190px]">
+        {/* ستون کلاینت */}
+        <div className="border border-linec rounded-md bg-night-800/60 p-3 flex flex-col">
+          <p className="font-bold text-sm text-teal">Client</p>
+          <p className="font-code text-[10px] text-faint mt-1">seq=1000</p>
+          <div className="mt-auto space-y-1">
+            {step >= 1 && <p className="pop-in font-code text-[10px] text-dim">→ SYN seq=1000</p>}
+            {step >= 3 && <p className="pop-in font-code text-[10px] text-dim">→ ACK (اتصال ✓)</p>}
+            {step >= 4 && <p className="pop-in font-code text-[10px] text-dim">→ DATA seq=1001</p>}
+            {step >= 6 && <p className="pop-in font-code text-[10px] text-dim">→ FIN (بستن)</p>}
+          </div>
+        </div>
+
+        {/* ناحیه میانی — بسته‌های در حال حرکت */}
+        <div className="relative w-24 border-x border-dashed border-linec/60 flex items-center justify-center">
+          {moving && (
+            <span
+              className={`pop-in font-code text-[10px] font-bold px-2 py-1 rounded border whitespace-nowrap ${
+                dir === "right" ? "bg-teal/15 text-teal border-teal/50" : "bg-amber/15 text-amber border-amber/50"
+              }`}
+            >
+              {STEPS[step].label.replace(/[→←⇄() ]/g, "")}
+            </span>
+          )}
+          {!moving && step === 3 && (
+            <span className="pop-in font-code text-[10px] text-teal border border-teal/40 bg-teal/10 rounded px-2 py-1">ESTABLISHED</span>
+          )}
+          {!moving && step === 6 && (
+            <span className="pop-in font-code text-[10px] text-coral border border-coral/40 bg-coral/10 rounded px-2 py-1">CLOSED</span>
+          )}
+        </div>
+
+        {/* ستون سرور */}
+        <div className="border border-linec rounded-md bg-night-800/60 p-3 flex flex-col">
+          <p className="font-bold text-sm text-amber">Server</p>
+          <p className="font-code text-[10px] text-faint mt-1">seq=5000</p>
+          <div className="mt-auto space-y-1 text-right">
+            {step >= 2 && <p className="pop-in font-code text-[10px] text-dim">SYN-ACK seq=5000 ←</p>}
+            {step >= 5 && <p className="pop-in font-code text-[10px] text-dim">ACK=1201 ←</p>}
+            {step >= 6 && <p className="pop-in font-code text-[10px] text-dim">ACK/FIN ←</p>}
+          </div>
+        </div>
+      </div>
+
+      <p key={step} className="pop-in mt-4 border border-linec bg-night-800/60 rounded-md p-3.5 text-[12.5px] leading-6 text-dim">
+        <b className="text-amber">{fa(step)}. {STEPS[step].label}:</b> {STEPS[step].note}
+      </p>
+
+      <div className="flex gap-1.5 mt-3" dir="rtl">
+        {STEPS.map((_, i) => (
+          <button key={i} onClick={() => setStep(i)} aria-label={`مرحله ${fa(i)}`} className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i === step ? "w-6 bg-amber" : "w-2.5 bg-night-600 hover:bg-faint"}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- محاسبه‌گر زیرشبکه ---------- */
+function SubnetCalc() {
+  const [cidr, setCidr] = useState(24);
+  const [ip, setIp] = useState("192.168.1.50");
+
+  const calc = useMemo(() => {
+    const parts = ip.split(".").map((x) => parseInt(x, 10));
+    const valid = parts.length === 4 && parts.every((n) => !Number.isNaN(n) && n >= 0 && n <= 255);
+    if (!valid) return null;
+    const ipNum = ((parts[0] << 24) >>> 0) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
+    const mask = cidr === 0 ? 0 : (~0 << (32 - cidr)) >>> 0;
+    const network = (ipNum & mask) >>> 0;
+    const hostBits = 32 - cidr;
+    const hosts = hostBits >= 2 ? Math.pow(2, hostBits) - 2 : 0;
+    const broadcast = (network + Math.pow(2, hostBits) - 1) >>> 0;
+    const toStr = (n: number) => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+    const maskStr = [24, 16, 8, 0].map((s) => (mask >>> s) & 255).join(".");
+    return {
+      mask: maskStr,
+      network: toStr(network),
+      broadcast: toStr(broadcast),
+      first: toStr((network + 1) >>> 0),
+      last: toStr((broadcast - 1) >>> 0),
+      hosts,
+      hostBits,
+    };
+  }, [ip, cidr]);
+
+  return (
+    <div className="border border-linec bg-night-900/80 rounded-md p-5 select-none">
+      <div className="flex flex-wrap items-center gap-3 mb-5" dir="rtl">
+        <span className="font-code text-xs text-cyan border border-cyan/30 bg-cyan/5 rounded px-2 py-1" dir="ltr">Subnet Calculator</span>
+        <input
+          value={ip}
+          onChange={(e) => setIp(e.target.value)}
+          dir="ltr"
+          placeholder="192.168.1.50"
+          className="font-code text-sm bg-night-950 border border-linec rounded-md px-3 py-1.5 w-36 text-left text-mist outline-none focus:border-amber/60"
+        />
+        <span className="font-code text-lg text-amber">/</span>
+        <input
+          type="range"
+          min={8}
+          max={30}
+          value={cidr}
+          onChange={(e) => setCidr(parseInt(e.target.value, 10))}
+          className="w-40 accent-amber"
+          aria-label="CIDR"
+        />
+        <span className="font-code text-sm font-bold text-amber w-9" dir="ltr">/{cidr}</span>
+      </div>
+
+      {!calc ? (
+        <p className="text-sm text-coral border border-coral/40 bg-coral/5 rounded-md p-4">آدرس IP معتبر نیست — چهار عدد بین ۰ تا ۲۵۵ با نقطه جدا کن.</p>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-3" dir="rtl">
+          {[
+            ["آدرس شبکه (Network)", calc.network, "text-teal"],
+            ["Broadcast", calc.broadcast, "text-coral"],
+            ["اولین میزبان قابل‌استفاده", calc.first, "text-mist"],
+            ["آخرین میزبان قابل‌استفاده", calc.last, "text-mist"],
+            ["Subnet Mask", calc.mask, "text-cyan"],
+            ["تعداد میزبان قابل‌استفاده", `${fa(calc.hosts)} (${fa(2)}^${fa(calc.hostBits)} − ${fa(2)})`, "text-amber"],
+          ].map(([label, val, color]) => (
+            <div key={label as string} className="border border-linec bg-night-800/60 rounded-md p-3.5">
+              <p className="text-[11px] text-faint">{label}</p>
+              <p className={`font-code text-[15px] font-bold mt-1 ${color}`} dir="ltr">{val}</p>
+            </div>
+          ))}
+          <div className="sm:col-span-2 border border-linec bg-night-800/40 rounded-md p-3.5 text-[12px] leading-6 text-dim">
+            با <b className="text-amber" dir="ltr">/{cidr}</b>، <b className="text-amber">{fa(cidr)}</b> بیت اول شبکه و <b className="text-amber">{fa(calc.hostBits)}</b> بیت میزبان است؛ پس {fa(Math.pow(2, calc.hostBits))} آدرس داریم که ۲ تای آن (شبکه و broadcast) رزرو می‌شود.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------- رجیستری ---------- */
 const REGISTRY: Record<string, () => ReactNode> = {
   bigo: () => <BigO />,
@@ -971,6 +1147,8 @@ const REGISTRY: Record<string, () => ReactNode> = {
   microvmono: () => <Microvmono />,
   dockerLayers: () => <DockerLayers />,
   vibeLoop: () => <VibeLoop />,
+  tcpHandshake: () => <TcpHandshake />,
+  subnetCalc: () => <SubnetCalc />,
 };
 
 /* ---------- حلقه وایب کدینگ ---------- */
