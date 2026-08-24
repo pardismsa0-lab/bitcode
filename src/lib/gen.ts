@@ -68,3 +68,34 @@ export function mkL(s: LSpec): Lesson {
 }
 
 export const mkLs = (specs: LSpec[]): Lesson[] => specs.map(mkL);
+
+/* ---------- لایه گسترش: تبدیل درس فشرده به درس مفصل ---------- */
+export interface LessonExpand {
+  sections?: { h: string; p: string }[];
+  example?: { lang: string; title: string; code: string };
+  def?: [string, string];
+  table?: [string[], string[][]];
+  pitfall?: string;
+  tip?: string;
+  quiz?: { q: string; opts: string[]; ans: number; why: string }[];
+}
+
+export function expandLesson(l: Lesson, e: LessonExpand): Lesson {
+  const ins: Block[] = [];
+  (e.sections ?? []).forEach((s) => {
+    ins.push({ k: "h", t: s.h }, { k: "p", t: s.p });
+  });
+  if (e.example)
+    ins.push({ k: "h", t: "مثال حل‌شده" }, { k: "code", lang: e.example.lang, title: e.example.title, code: e.example.code });
+  if (e.def) ins.push({ k: "def", term: e.def[0], t: e.def[1] });
+  if (e.table) ins.push({ k: "h", t: "جدول مرجع" }, { k: "table", head: e.table[0], rows: e.table[1] });
+  if (e.pitfall) ins.push({ k: "warn", title: "دام رایج", t: e.pitfall });
+  if (e.tip) ins.push({ k: "tip", title: "نکته منتور", t: e.tip });
+
+  const blocks = [...l.blocks];
+  blocks.splice(1, 0, ...ins);
+
+  const quiz = [...l.quiz, ...(e.quiz ?? [])];
+  const minutes = l.minutes + (e.sections?.length ?? 0) * 8 + (e.example ? 7 : 0);
+  return { ...l, blocks, quiz, minutes };
+}
