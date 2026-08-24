@@ -19,6 +19,7 @@ import { DEEP_B } from "./deepdive2";
 import { DEEP_C } from "./deepdive3";
 import { DEEP_D } from "./deepdive4";
 import { DEEP_E } from "./deepdive5";
+import { DEEP_F } from "./deepdive6";
 import { RICH1 } from "./rich1";
 import { RICH2 } from "./rich2";
 import { RICH3 } from "./rich3";
