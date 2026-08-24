@@ -20,6 +20,13 @@ import { EXPAND3 } from "./expand3";
 import { EXPAND4 } from "./expand4";
 import { EXPAND5 } from "./expand5";
 import { EXPAND6 } from "./expand6";
+import { EXPAND7 } from "./expand7";
+import { EXPAND8 } from "./expand8";
+import { EXPAND9 } from "./expand9";
+import { EXPAND10 } from "./expand10";
+import { EXPAND11 } from "./expand11";
+import { EXPAND12 } from "./expand12";
+import { EXPAND13 } from "./expand13";
 import { expandLesson, type LessonExpand } from "./gen";
 import { DEEP_A } from "./deepdive1";
 import { DEEP_B } from "./deepdive2";
@@ -102,6 +109,8 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
 /* ---------- درس‌های حجمی (bulk) هر دوره ---------- */
 const EXPAND: Record<string, LessonExpand> = {
   ...EXPAND1, ...EXPAND2, ...EXPAND3, ...EXPAND4, ...EXPAND5, ...EXPAND6,
+  ...EXPAND7, ...EXPAND8, ...EXPAND9, ...EXPAND10, ...EXPAND11, ...EXPAND12,
+  ...EXPAND13,
 };
 
 const RAW_BULK: Record<string, Lesson[]> = {
