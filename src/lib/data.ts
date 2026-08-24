@@ -48,6 +48,7 @@ export const courses: Course[] = [
   { id: "git", title: "لینوکس، ترمینال و Git از صفر", cat: "infra", level: "مقدماتی", hours: 30, sessions: 20, students: 5120, rating: 4.9, price: 0, instructor: "مهندس نگار رستمی", skills: ["Shell", "دستورات لینوکس", "Git و GitHub", "SSH"], hue: "teal" },
   { id: "vibe", title: "وایب کدینگ؛ برنامه‌نویسی هم‌نشین با هوش مصنوعی", cat: "data", level: "مقدماتی", hours: 34, sessions: 22, students: 6240, rating: 4.9, price: 0, popular: true, instructor: "مهندس کیان مرادی", skills: ["Prompt Engineering", "Cursor و Copilot", "ساخت MVP", "Agentها"], hue: "coral" },
   { id: "linux", title: "لینوکس اوبونتو؛ از نصب تا مدیریت سرور", cat: "infra", level: "مقدماتی", hours: 60, sessions: 32, students: 7410, rating: 4.9, price: 0, popular: true, instructor: "مهندس سامان کیانی", skills: ["Ubuntu Server", "Bash Scripting", "Systemd", "SSH و شبکه", "امنیت و سخت‌سازی"], hue: "amber" },
+  { id: "dist", title: "سیستم‌های توزیع‌شده؛ از تئوری تا معماری‌های واقعی", cat: "cs", level: "پیشرفته", hours: 66, sessions: 36, students: 2180, rating: 4.9, price: 3600000, popular: true, instructor: "دکتر آرش کمالی", skills: ["Raft و اجماع", "CAP و Quorum", "Sharding", "Saga و تراکنش", "Circuit Breaker"], hue: "coral" },
 ];
 
 export interface Phase {
@@ -67,7 +68,7 @@ export const phases: Phase[] = [
   { id: 4, term: "فاز ۴", title: "مهندسی نرم‌افزار کلاسیک", weeks: 8, desc: "چرخه حیات، نیازمندی‌ها و مدل‌سازی UML را یاد می‌گیری و اولین سیستم واقعی را روی کاغذ طراحی می‌کنی.", tags: ["مهندسی نرم‌افزار", "UML", "پایگاه داده"], hue: "coral" },
   { id: 5, term: "فاز ۵", title: "طراحی حرفه‌ای و کیفیت", weeks: 8, desc: "الگوهای طراحی و TDD؛ از اینجا به بعد کدی می‌نویسی که هم‌تیمی‌ها دوستش دارند و تغییرش نمی‌ترساند.", tags: ["الگوهای طراحی", "تست و TDD", "کد تمیز"], hue: "teal" },
   { id: 6, term: "فاز ۶", title: "توسعه وب فول‌استک", weeks: 12, desc: "با React و Node.js یک محصول واقعی از دیتابیس تا رابط کاربری می‌سازی و دیپلوی می‌کنی.", tags: ["React", "Node.js", "REST API"], hue: "amber" },
-  { id: 7, term: "فاز ۷", title: "معماری و سیستم‌های توزیع‌شده", weeks: 10, desc: "میکروسرویس‌ها، داکر و کوبرنتیز؛ سیستم‌هایی که زیر بار میلیون‌ها کاربر خم نمی‌شوند.", tags: ["معماری نرم‌افزار", "Docker و K8s", "امنیت"], hue: "cyan" },
+  { id: 7, term: "فاز ۷", title: "معماری و سیستم‌های توزیع‌شده", weeks: 10, desc: "میکروسرویس‌ها، داکر و کوبرنتیز و اصول سیستم‌های توزیع‌شده؛ سیستم‌هایی که زیر بار میلیون‌ها کاربر خم نمی‌شوند.", tags: ["معماری نرم‌افزار", "Raft و CAP", "Docker و K8s", "سیستم‌های توزیع‌شده"], hue: "cyan" },
   { id: 8, term: "فاز ۸", title: "پروژه پایانی و ورود به بازار کار", weeks: 6, desc: "پروژه جامع تیمی، مرور کد توسط منتور، ساخت رزومه مهندسی و شبیه‌سازی مصاحبه‌های فنی.", tags: ["پروژه تیمی", "Code Review", "مصاحبه فنی"], hue: "coral" },
 ];
 
@@ -101,7 +102,7 @@ export interface Mentor {
 }
 
 export const mentors: Mentor[] = [
-  { name: "دکتر آرش کمالی", role: "دکترای مهندسی نرم‌افزار · ۱۲ سال تجربه معماری سیستم", tags: ["معماری نرم‌افزار", "UML", "سیستم‌های توزیع‌شده"], coursesCount: 5, students: 6400, rating: 4.9, initials: "آک", hue: "amber" },
+  { name: "دکتر آرش کمالی", role: "دکترای مهندسی نرم‌افزار · ۱۲ سال تجربه معماری سیستم", tags: ["معماری نرم‌افزار", "UML", "سیستم‌های توزیع‌شده"], coursesCount: 6, students: 8580, rating: 4.9, initials: "آک", hue: "amber" },
   { name: "مهندس سارا محمدی", role: "مهندس ارشد بک‌اند · مدرس Clean Code", tags: ["جاوا", "Node.js", "کد تمیز"], coursesCount: 4, students: 4850, rating: 4.8, initials: "سم", hue: "teal" },
   { name: "دکتر بردیا افشار", role: "مدرس المپیاد کامپیوتر · متخصص الگوریتم", tags: ["الگوریتم", "گراف", "برنامه‌نویسی رقابتی"], coursesCount: 3, students: 3720, rating: 5.0, initials: "با", hue: "cyan" },
   { name: "مهندس نگار رستمی", role: "مهندس فرانت‌اند و DevOps · منتور پروژه‌های تیمی", tags: ["React", "Docker", "CI/CD"], coursesCount: 5, students: 5230, rating: 4.9, initials: "نر", hue: "coral" },

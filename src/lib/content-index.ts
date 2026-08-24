@@ -27,6 +27,7 @@ import { RICH5 } from "./rich5";
 import { RICH6 } from "./rich6";
 import { RICH7_NET } from "./rich7";
 import { UBUNTU_COMPACT, UBUNTU_RICH } from "./ubuntu-course";
+import { DIST_COMPACT, DIST_RICH } from "./dist-course";
 
 /* درس‌های «غنی» — استاندارد آموزشی کامل؛ اولویت هر دوره */
 const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4, ...RICH5, ...RICH6 };
@@ -76,6 +77,8 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
   "net-r3": [{ visual: "subnetCalc", title: "ابزار تعاملی: محاسبه‌گر زیرشبکه", pos: 2 }],
   "ub-r2": [{ visual: "fhsTree", title: "شبیه‌ساز: نقشه فایل‌سیستم FHS", pos: 2 }],
   "ub-r4": [{ visual: "chmodCalc", title: "شبیه‌ساز: ماشین‌حساب chmod", pos: 2 }],
+  "ds-r3": [{ visual: "raftElection", title: "شبیه‌ساز: انتخاب رهبر Raft", pos: 2 }],
+  "ds-r5": [{ visual: "consistentHash", title: "شبیه‌ساز: حلقه هش‌گذاری سازگار", pos: 2 }],
   "n-os-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: Stack و Heap", pos: 2 }],
   "n-os-l2": [{ visual: "deadlock", title: "شبیه‌ساز: بن‌بست", pos: 2 }],
   "n-cpp-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: حافظه Stack و Heap", pos: 2 }],
@@ -220,5 +223,24 @@ const RAW: Record<string, CourseContent> = {
   vibe: VIBE,
   linux: LINUX,
 };
+
+/* ---------- دوره سیستم‌های توزیع‌شده ---------- */
+const DIST: CourseContent = {
+  id: "dist",
+  intro:
+    "وقتی یک ماشین دیگر کافی نیست — به‌خاطر مقیاس، دسترس‌پذیری یا فاصله جغرافیایی — وارد دنیای توزیع‌شده می‌شوی؛ دنیایی که در آن شبکه غیرقابل‌اعتماد است، ساعت مشترکی وجود ندارد و خرابی، قاعده است نه استثنا. این دوره از تئوری‌های بنیادی (زمان و ترتیب، اجماع، CAP، Quorum) شروع می‌کند و به ابزارهای واقعی (Raft، Sharding، Saga، Circuit Breaker) و مطالعه موردی سیستم‌های بزرگ (کافکا، کاساندرا، اسپنر) می‌رسد. پیش‌نیاز: آشنایی با ساختمان داده و یک زبان برنامه‌نویسی.",
+  outcomes: [
+    "درک عمیق چالش‌های ذاتی: شکست جزئی، زمان و ترتیب، ابهام شبکه",
+    "فهم اجماع و Raft: انتخاب رهبر، ترم‌ها و تکرار لاگ",
+    "تسلط بر Replication، Quorum و مدل‌های سازگاری (CAP/PACELC)",
+    "طراحی تقسیم داده با Sharding و هش‌گذاری سازگار",
+    "پیاده‌سازی تراکنش توزیع‌شده با Saga و Idempotency",
+    "طراحی مقاوم با Timeout، Retry، Circuit Breaker و Bulkhead",
+    "خواندن معماری سیستم‌های واقعی و درک مصالحه‌هایشان",
+  ],
+  lessons: [...DIST_RICH, ...DIST_COMPACT],
+};
+
+RAW.dist = DIST;
 
 export const COURSE_CONTENT: Record<string, CourseContent> = RAW;

@@ -1264,6 +1264,244 @@ function FhsTree() {
   );
 }
 
+/* ---------- انتخاب رهبر Raft ---------- */
+function RaftElection() {
+  const [phase, setPhase] = useState(0);
+  const [term, setTerm] = useState(4);
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (phase === 0 || phase >= 4) return;
+    const id = window.setTimeout(
+      () => {
+        if (phase === 1) setTerm((t) => t + 1);
+        setPhase((p) => p + 1);
+      },
+      reduced ? 80 : phase === 3 ? 900 : 1150
+    );
+    return () => window.clearTimeout(id);
+  }, [phase, reduced]);
+
+  // ۵ گره روی بیضی؛ A بالا (رهبر اولیه)، C پایین (نامزد)
+  const names = ["A", "B", "C", "D", "E"];
+  const cx = 170, cy = 122, rx = 128, ry = 84;
+  const pos = names.map((_, i) => {
+    const a = ((-90 + i * 72) * Math.PI) / 180;
+    return { x: cx + rx * Math.cos(a), y: cy + ry * Math.sin(a) };
+  });
+
+  const role = (i: number): "leader" | "dead" | "candidate" | "voted" | "follower" => {
+    if (i === 0) return phase === 0 ? "leader" : "dead";
+    if (i === 2) return phase >= 4 ? "leader" : phase >= 2 ? "candidate" : "follower";
+    if (i === 1 || i === 3) return phase >= 3 ? "voted" : "follower";
+    return "follower";
+  };
+
+  const NODE_COLOR: Record<string, string> = {
+    leader: "#ffb454",
+    dead: "#3a4a5c",
+    candidate: "#ff7a63",
+    voted: "#3fd8b6",
+    follower: "#64809c",
+  };
+
+  const captions: Record<number, string> = {
+    0: `گره A رهبر است (Term ${fa(term)}) و هر ۵۰ میلی‌ثانیه Heartbeat می‌فرستد. همه نوشتن‌ها از او می‌گذرند.`,
+    1: "گره A ناگهان مرد — بدون خداحافظی. پیروها فقط «سکوت» را می‌شنوند و منتظر می‌مانند تا مهلت‌شان تمام شود…",
+    2: `مهلت گره C تمام شد (مهلت‌ها تصادفی‌اند): نامزد می‌شود، Term را به ${fa(term)} می‌برد و از همه رأی می‌خواهد (RequestVote).`,
+    3: "گره‌های B و D رأی می‌دهند — هر گره در هر Term فقط یک رأی دارد. E دیر رسید. حالا C اکثریت (۲ از ۳ رأی‌دهنده) را دارد.",
+    4: `گره C رهبر جدید است (Term ${fa(term)}) و دوباره Heartbeat می‌فرستد. وقفه کل: ~۲۰۰ میلی‌ثانیه — و هیچ داده‌ای گم نشد.`,
+  };
+
+  const reset = () => {
+    setPhase(0);
+    setTerm(4);
+  };
+
+  return (
+    <div className="select-none">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <span className="flex items-center gap-2">
+          <span className="text-xs font-code border border-amber/40 bg-amber/5 text-amber rounded px-2.5 py-1">Term {fa(term)}</span>
+          {phase === 4 && (
+            <span className="text-xs font-code border border-teal/40 bg-teal/5 text-teal rounded px-2.5 py-1">رهبر: C</span>
+          )}
+          {phase === 0 && (
+            <span className="text-xs font-code border border-linec text-faint rounded px-2.5 py-1">رهبر: A</span>
+          )}
+        </span>
+        <span className="flex gap-2">
+          {phase === 0 && (
+            <VBtn onClick={() => setPhase(1)} active>⚡ گره A را از کار بینداز</VBtn>
+          )}
+          {(phase === 4) && (
+            <VBtn onClick={reset}>↺ شروع دوباره</VBtn>
+          )}
+        </span>
+      </div>
+
+      <svg viewBox="0 0 340 244" className="w-full max-w-md mx-auto">
+        <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke="var(--color-night-600)" strokeDasharray="3 6" />
+        {/* خطوط رأی‌خواهی از C (اندیس ۲) */}
+        {phase >= 2 && [1, 3, 4].map((t) => {
+          const votedYes = (t === 1 || t === 3) && phase >= 3;
+          return (
+            <line
+              key={t}
+              x1={pos[2].x} y1={pos[2].y} x2={pos[t].x} y2={pos[t].y}
+              stroke={votedYes ? "#3fd8b6" : "#ff7a63"}
+              strokeWidth={votedYes ? 2.4 : 1.4}
+              strokeDasharray={votedYes ? "none" : "5 5"}
+              opacity={0.75}
+              style={{ transition: "all .5s" }}
+            />
+          );
+        })}
+        {/* ضربان رهبر */}
+        {(phase === 0 || phase === 4) && [1, 3, 4].map((t) => {
+          const li = phase === 0 ? 0 : 2;
+          return <line key={`hb${t}`} x1={pos[li].x} y1={pos[li].y} x2={pos[t].x} y2={pos[t].y} stroke="#ffb454" strokeWidth={1.2} opacity={0.3} />;
+        })}
+        {names.map((n, i) => {
+          const r = role(i);
+          const col = NODE_COLOR[r];
+          return (
+            <g key={n} style={{ transition: "opacity .4s" }} opacity={r === "dead" ? 0.45 : 1}>
+              {r === "leader" && <circle cx={pos[i].x} cy={pos[i].y} r={26} fill="none" stroke={col} strokeWidth={1.5} className={reduced ? "" : "glow-pulse"} />}
+              <circle cx={pos[i].x} cy={pos[i].y} r={20} fill="var(--color-night-800)" stroke={col} strokeWidth={r === "follower" ? 1.4 : 2.6} style={{ transition: "stroke .4s" }} />
+              {r === "dead" ? (
+                <path d={`M${pos[i].x - 7} ${pos[i].y - 7} L${pos[i].x + 7} ${pos[i].y + 7} M${pos[i].x + 7} ${pos[i].y - 7} L${pos[i].x - 7} ${pos[i].y + 7}`} stroke="#ff7a63" strokeWidth={2.4} strokeLinecap="round" />
+              ) : (
+                <text x={pos[i].x} y={pos[i].y + 5} textAnchor="middle" fontSize={14} fontWeight={700} fill={col}>{n}</text>
+              )}
+              {r === "leader" && (
+                <path d={`M${pos[i].x - 9} ${pos[i].y - 27} l4 5 l5 -6 l5 6 l4 -5 v8 h-18 Z`} fill="#ffb454" />
+              )}
+            </g>
+          );
+        })}
+      </svg>
+
+      <div key={phase} className="pop-in border border-linec bg-night-800/60 rounded-md p-4 min-h-[70px] mt-2">
+        <p className="text-dim text-[13px] leading-7">{captions[phase]}</p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-[11px] text-faint">
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ffb454" }} /> رهبر</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ff7a63" }} /> نامزد</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#3fd8b6" }} /> رأی مثبت</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#64809c" }} /> پیرو</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#3a4a5c" }} /> مرده</span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- هش‌گذاری سازگار ---------- */
+function ConsistentHash() {
+  const ALL_NODES = ["Shard-A", "Shard-B", "Shard-C", "Shard-D", "Shard-E", "Shard-F"];
+  const COLORS = ["#ffb454", "#3fd8b6", "#5ec8ea", "#ff7a63", "#c792ea", "#ffd166"];
+  const [count, setCount] = useState(3);
+  const [moved, setMoved] = useState<number | null>(null);
+  const prevOwner = useRef<Map<string, number>>(new Map());
+
+  const hashPos = (s: string) => {
+    let h = 2166136261;
+    for (const c of s) {
+      h ^= c.charCodeAt(0);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0) % 360;
+  };
+
+  const nodes = ALL_NODES.slice(0, count);
+  const nodePos = nodes.map((n) => hashPos(n));
+  const sorted = nodePos.map((p, i) => ({ p, i })).sort((a, b) => a.p - b.p);
+  const keys = Array.from({ length: 12 }, (_, i) => `k${i + 1}`);
+
+  const ownerOf = (kpos: number) => {
+    const hit = sorted.find((n) => n.p >= kpos);
+    return (hit ?? sorted[0]).i;
+  };
+
+  useEffect(() => {
+    const next = new Map<string, number>();
+    let mv = 0;
+    keys.forEach((k) => {
+      const o = ownerOf(hashPos(k));
+      next.set(k, o);
+      const before = prevOwner.current.get(k);
+      if (before !== undefined && before !== o) mv += 1;
+    });
+    prevOwner.current = next;
+    setMoved(prevOwner.current.size === keys.length && count === 3 ? null : mv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
+
+  const C = 150, R = 108;
+  const pt = (deg: number, r = R) => {
+    const a = ((deg - 90) * Math.PI) / 180;
+    return { x: C + r * Math.cos(a), y: C + r * Math.sin(a) };
+  };
+
+  return (
+    <div className="select-none">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <span className="text-xs text-dim">
+          {count === 3 && moved === null ? "هر کلید به اولین گره بعد از خودش (در جهت ساعت) تعلق دارد" : `با تغییر گره‌ها، فقط <b class="text-amber">${moved ?? 0}</b> کلید از ۱۲ جابه‌جا شد`}
+        </span>
+        <span className="flex gap-2">
+          <VBtn onClick={() => setCount((c) => Math.max(2, c - 1))} disabled={count <= 2}>− گره</VBtn>
+          <VBtn onClick={() => setCount((c) => Math.min(6, c + 1))} disabled={count >= 6} active>+ گره</VBtn>
+        </span>
+      </div>
+
+      <svg viewBox="0 0 300 300" className="w-full max-w-sm mx-auto">
+        <circle cx={C} cy={C} r={R} fill="none" stroke="var(--color-night-600)" strokeWidth={1.5} />
+        {[0, 90, 180, 270].map((d) => {
+          const a = pt(d, R + 8), b = pt(d, R - 8);
+          return <line key={d} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="var(--color-night-600)" strokeWidth={1} />;
+        })}
+        {/* کلیدها: لوزی رنگی روی حلقه */}
+        {keys.map((k) => {
+          const p = pt(hashPos(k));
+          const o = ownerOf(hashPos(k));
+          return (
+            <g key={k} style={{ transition: "all .6s" }}>
+              <rect x={p.x - 4} y={p.y - 4} width={8} height={8} transform={`rotate(45 ${p.x} ${p.y})`} fill={COLORS[o]} opacity={0.9}>
+                <title>{`${k} → ${nodes[o]}`}</title>
+              </rect>
+            </g>
+          );
+        })}
+        {/* گره‌ها */}
+        {nodes.map((n, i) => {
+          const p = pt(nodePos[i]);
+          return (
+            <g key={n} style={{ transition: "all .6s" }}>
+              <circle cx={p.x} cy={p.y} r={16} fill="var(--color-night-800)" stroke={COLORS[i]} strokeWidth={2.5} />
+              <text x={p.x} y={p.y + 4} textAnchor="middle" fontSize={10} fontWeight={700} fill={COLORS[i]}>{String.fromCharCode(65 + i)}</text>
+            </g>
+          );
+        })}
+      </svg>
+
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 mt-2 text-[11px] text-faint">
+        {nodes.map((n, i) => (
+          <span key={n} className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i] }} />
+            {n}
+          </span>
+        ))}
+      </div>
+
+      <p className="text-center text-[11.5px] text-faint mt-3 leading-6">
+        با باقیمانده‌ساده (key % N) هر تغییر گره <b className="text-coral">همه ۱۲ کلید</b> را جابه‌جا می‌کرد؛ حلقه فقط همسایه‌های گره جدید را جابه‌جا می‌کند.
+      </p>
+    </div>
+  );
+}
+
 /* ---------- رجیستری ---------- */
 const REGISTRY: Record<string, () => ReactNode> = {
   bigo: () => <BigO />,
@@ -1289,6 +1527,8 @@ const REGISTRY: Record<string, () => ReactNode> = {
   subnetCalc: () => <SubnetCalc />,
   chmodCalc: () => <ChmodCalc />,
   fhsTree: () => <FhsTree />,
+  raftElection: () => <RaftElection />,
+  consistentHash: () => <ConsistentHash />,
 };
 
 /* ---------- حلقه وایب کدینگ ---------- */
