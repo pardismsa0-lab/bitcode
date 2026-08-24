@@ -29,7 +29,7 @@ export interface RichLessonSpec {
   /** ۱-۲ جمله آغازین: چرا این موضوع برای یک مهندس مهم است */
   hook: string;
   /** بخش‌های آموزشی؛ هر کدام یک سرفصل + پاراگراف واقعی */
-  sections: { h: string; p: string }[];
+  sections: { h: string; p: string; p2?: string }[];
   example?: ExampleSpec;
   /** [نام مفهوم, تعریف دقیق] */
   concept?: [string, string];

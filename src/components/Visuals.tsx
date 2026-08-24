@@ -1126,6 +1126,144 @@ function SubnetCalc() {
   );
 }
 
+/* ---------- ماشین‌حساب chmod ---------- */
+function ChmodCalc() {
+  // بیت‌ها: [u.r,u.w,u.x, g.r,g.w,g.x, o.r,o.w,o.x]
+  const [bits, setBits] = useState<boolean[]>([true, true, true, true, false, true, true, false, false]); // 755
+  const groups = [
+    { t: "مالک (u)", cls: "text-amber" },
+    { t: "گروه (g)", cls: "text-teal" },
+    { t: "بقیه (o)", cls: "text-cyan" },
+  ];
+  const perms = [
+    { t: "خواندن (r)", v: 4 },
+    { t: "نوشتن (w)", v: 2 },
+    { t: "اجرا (x)", v: 1 },
+  ];
+
+  const octal = [0, 1, 2].map((g) => bits.slice(g * 3, g * 3 + 3).reduce((s, b, i) => s + (b ? perms[i].v : 0), 0)).join("");
+  const symbolic = bits.map((b, i) => (b ? "rwx"[i % 3] : "-")).join("");
+  const isDangerous = octal === "777";
+
+  const presets: { o: string; note: string }[] = [
+    { o: "755", note: "دایرکتوری و اسکریپت" },
+    { o: "644", note: "فایل معمولی" },
+    { o: "600", note: "کلید SSH و اسرار" },
+    { o: "777", note: "خطرناک — تقریباً هرگز!" },
+  ];
+
+  const setPreset = (o: string) => {
+    const digits = o.split("").map(Number);
+    setBits(digits.flatMap((d) => [d & 4 ? true : false, d & 2 ? true : false, d & 1 ? true : false]));
+  };
+
+  return (
+    <Frame title="ماشین‌حساب chmod — مجوزها را کلیک کن" hint="هر خانه یک بیت است: r=۴ ، w=۲ ، x=۱ و مجموع هر ستون، رقم هشتایی آن دسته. این همان منطق 755 و 644 است.">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        {groups.map((g, gi) => {
+          const digit = bits.slice(gi * 3, gi * 3 + 3).reduce((s, b, i) => s + (b ? perms[i].v : 0), 0);
+          return (
+            <div key={g.t} className="border border-linec rounded-md p-3 bg-night-900/60">
+              <p className={`text-[12px] font-bold text-center ${g.cls}`}>{g.t}</p>
+              <p className={`text-center font-code text-2xl font-bold my-1.5 ${g.cls}`}>{fa(digit)}</p>
+              <div className="space-y-1.5">
+                {perms.map((p, pi) => {
+                  const on = bits[gi * 3 + pi];
+                  return (
+                    <button
+                      key={p.t}
+                      onClick={() => setBits((prev) => prev.map((b, i) => (i === gi * 3 + pi ? !b : b)))}
+                      className={`w-full flex items-center justify-between rounded border px-2.5 py-1.5 text-[11.5px] transition-all duration-200 cursor-pointer ${
+                        on ? `${g.cls} border-current bg-night-800` : "text-faint border-linec hover:border-mist/30"
+                      }`}
+                    >
+                      <span>{p.t}</span>
+                      <span className="font-code font-bold">{on ? "rwx"[pi] : "−"}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 border border-linec rounded-md bg-night-950 p-4 font-code text-center" dir="ltr">
+        <p className="text-[11px] text-faint mb-1.5">$ ls -l file</p>
+        <p className="text-lg text-mist tracking-[0.2em]">-{symbolic}</p>
+        <p className={`text-2xl font-bold mt-2 ${isDangerous ? "text-coral" : "text-amber"}`}>
+          chmod {octal} file
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+        {presets.map((p) => (
+          <VBtn key={p.o} onClick={() => setPreset(p.o)} active={octal === p.o}>
+            {p.o} <span className="hidden sm:inline opacity-75">— {p.note}</span>
+          </VBtn>
+        ))}
+      </div>
+      {isDangerous && (
+        <p className="pop-in text-center text-[12px] text-coral mt-3 font-semibold">
+          ⚠ هر کاربری می‌تواند این فایل را بخواند، بنویسد و اجرا کند — درِ باز برای همه یعنی درِ باز برای مهاجم.
+        </p>
+      )}
+    </Frame>
+  );
+}
+
+/* ---------- درخت فایل‌سیستم FHS ---------- */
+const FHS_DIRS: { d: string; t: string; p: string; ex: string }[] = [
+  { d: "/etc", t: "تنظیمات سیستمی", p: "خانه پیکربندی همه سرویس‌ها؛ هر فایلی که سیستم «چطور» رفتار کند اینجاست. ویرایش این فایل‌ها + ری‌استارت سرویس = تغییر رفتار سیستم.", ex: "sudoedit /etc/ssh/sshd_config" },
+  { d: "/home", t: "خانه کاربران", p: "هر کاربر یک دایرکتوری دارد (~/) و فایل‌های شخصی، دانلودها و تنظیمات نقطه‌دارش (.bashrc) اینجاست. کاربران عادی فقط به خانه خودشان حق نوشتن دارند.", ex: "cd ~ && ls -la" },
+  { d: "/var", t: "داده‌های متغیر", p: "لاگ‌ها، صف‌ها، کش‌ها و دیتابیس‌ها — هر چیزی که حین کار بزرگ و کوچک می‌شود. اولین مقصد وقتی دیسک پر شده یا دنبال لاگی.", ex: "du -h --max-depth=1 /var | sort -rh" },
+  { d: "/tmp", t: "فایل‌های موقت", p: "فضای اشتراکی موقت که ممکن است هر لحظه (و حتماً موقع ری‌استارت) پاک شود. هیچ چیز مهمی اینجا نگذار — فقط چیزهایی که از دست‌رفتنشان مهم نیست.", ex: "systemd-tmpfiles --clean" },
+  { d: "/bin و /sbin", t: "فرمان‌های پایه", p: "فرمان‌های ضروری سیستم (ls، cp، mount) — sbin نسخه‌های مدیریتی‌اند (reboot، fdisk). در اوبونتوی مدرن معمولاً لینک به /usr/bin هستند.", ex: "ls /usr/bin | wc -l" },
+  { d: "/usr", t: "نرم‌افزارهای نصبی", p: "دنیای برنامه‌های نصب‌شده با apt: باینری‌ها در usr/bin، کتابخانه‌ها در usr/lib و مستندات در usr/share. بزرگ‌ترین ساکن دیسک‌های توسعه‌دهنده‌ها.", ex: "which python3" },
+  { d: "/dev", t: "دستگاه‌ها", p: "هر سخت‌افزار به‌شکل فایل: دیسک‌ها sda و nvme0n1، پارتیشن‌ها sda1… و دو فایل جالب: /dev/null (سیاه‌چاله) و /dev/random (تصادف).", ex: "lsblk" },
+  { d: "/proc", t: "پنجره زنده به هسته", p: "فایل‌سیستم مجازی: اطلاعات لحظه‌ای پردازنده‌ها، حافظه و processها. خواندنش یعنی پرسیدن مستقیم از هسته — بدون هیچ ابزاری.", ex: "cat /proc/meminfo | head -3" },
+  { d: "/sys", t: "کنترل هسته", p: "مثل proc ولی برای «تنظیم»: پارامترهای سخت‌افزار و هسته. نوشتن ۱ در یک فایلش می‌تواند قابلیتی را روشن کند — قدرت و خطر همزمان.", ex: "cat /sys/class/net/*/address" },
+  { d: "/boot", t: "فایل‌های بوت", p: "هسته‌های لینوکس (vmlinuz) و initramfs که سیستم برای بالاآمدن لازم دارد. دست‌نزدن به اینجا بدون دلیل = ریسک بوت‌نشدن.", ex: "ls /boot" },
+  { d: "/opt", t: "نرم‌افزارهای جانبی", p: "برای بسته‌های بزرگ و خودکفا که خارج از apt نصب می‌شوند (مثل ابزارهای تجاری). هر برنامه زیردایرکتوری خودش.", ex: "ls /opt" },
+  { d: "/root", t: "خانه کاربر root", p: "عمداً از /home جداست تا در مشکلات فایل‌سیستم /home، مدیر هنوز خانه داشته باشد. جایی که نباید وقت بگذرانی!", ex: "sudo ls /root" },
+];
+
+function FhsTree() {
+  const [sel, setSel] = useState(0);
+  const cur = FHS_DIRS[sel];
+  return (
+    <Frame title="سلسله‌مراتب فایل‌سیستم — روی هر دایرکتوری کلیک کن" hint="این نقشه شهرِ لینوکس است؛ در هر توزیعی (اوبونتو، دبیان، ردحت) تقریباً یکسان است.">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="border border-linec rounded-md bg-night-900/60 p-2 font-code text-[13px] max-h-72 overflow-y-auto" dir="ltr">
+          <p className="px-2.5 py-1.5 text-faint">user@ubuntu:~$ ls /</p>
+          {FHS_DIRS.map((f, i) => (
+            <button
+              key={f.d}
+              onClick={() => setSel(i)}
+              className={`w-full text-left px-2.5 py-1.5 rounded transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+                i === sel ? "bg-amber/15 text-amber" : "text-dim hover:bg-night-800 hover:text-mist"
+              }`}
+            >
+              <span className="text-teal shrink-0">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z" /></svg>
+              </span>
+              {f.d.startsWith("/") ? f.d.slice(1) : f.d}
+            </button>
+          ))}
+        </div>
+        <div key={sel} className="pop-in border border-linec rounded-md bg-night-950 p-5">
+          <p className="font-code text-amber text-xl font-bold" dir="ltr">{cur.d}</p>
+          <p className="font-display text-lg text-mist mt-1">{cur.t}</p>
+          <p className="text-dim text-[13px] leading-7 mt-3">{cur.p}</p>
+          <p className="font-code text-[12px] text-teal bg-teal/5 border border-teal/25 rounded px-3 py-2 mt-4" dir="ltr">
+            $ {cur.ex}
+          </p>
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
 /* ---------- رجیستری ---------- */
 const REGISTRY: Record<string, () => ReactNode> = {
   bigo: () => <BigO />,
@@ -1149,6 +1287,8 @@ const REGISTRY: Record<string, () => ReactNode> = {
   vibeLoop: () => <VibeLoop />,
   tcpHandshake: () => <TcpHandshake />,
   subnetCalc: () => <SubnetCalc />,
+  chmodCalc: () => <ChmodCalc />,
+  fhsTree: () => <FhsTree />,
 };
 
 /* ---------- حلقه وایب کدینگ ---------- */

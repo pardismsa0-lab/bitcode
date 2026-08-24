@@ -26,6 +26,7 @@ import { RICH4 } from "./rich4";
 import { RICH5 } from "./rich5";
 import { RICH6 } from "./rich6";
 import { RICH7_NET } from "./rich7";
+import { UBUNTU_COMPACT, UBUNTU_RICH } from "./ubuntu-course";
 
 /* درس‌های «غنی» — استاندارد آموزشی کامل؛ اولویت هر دوره */
 const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4, ...RICH5, ...RICH6 };
@@ -73,6 +74,8 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
   "n-net-l2": [{ visual: "httpCycle", title: "شبیه‌ساز: چرخه یک درخواست", pos: 2 }],
   "net-r2": [{ visual: "tcpHandshake", title: "شبیه‌ساز: دست‌دادن سه‌راهی TCP", pos: 2 }],
   "net-r3": [{ visual: "subnetCalc", title: "ابزار تعاملی: محاسبه‌گر زیرشبکه", pos: 2 }],
+  "ub-r2": [{ visual: "fhsTree", title: "شبیه‌ساز: نقشه فایل‌سیستم FHS", pos: 2 }],
+  "ub-r4": [{ visual: "chmodCalc", title: "شبیه‌ساز: ماشین‌حساب chmod", pos: 2 }],
   "n-os-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: Stack و Heap", pos: 2 }],
   "n-os-l2": [{ visual: "deadlock", title: "شبیه‌ساز: بن‌بست", pos: 2 }],
   "n-cpp-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: حافظه Stack و Heap", pos: 2 }],
@@ -158,6 +161,22 @@ const VIBE: CourseContent = {
   lessons: [...VIBE_A, ...VIBE_B, ...(BULK.vibe ?? [])],
 };
 
+/* ---------- دوره لینوکس اوبونتو ---------- */
+const LINUX: CourseContent = {
+  id: "linux",
+  intro:
+    "لینوکس زیرزمین دنیای نرم‌افزار است: ۹۰٪ سرورهای ابری، همه ابررایانه‌ها و زیرساخت هر محصول دیجیتال روی آن می‌دود. این دوره اوبونتو را از صفر مطلق — نصب و شناخت سیستم — تا مدیریت یک سرور تولید می‌برد: فایل‌سیستم و مجوزها، processها و systemd، اسکریپت‌نویسی Bash، شبکه و SSH امن، لاگ‌ها و عیب‌یابی سیستماتیک، امنیت و سخت‌سازی، دیسک و اتوماسیون. هر درس با فرمان‌هایی که همان روز روی سرور واقعی استفاده می‌کنی.",
+  outcomes: [
+    "راحتی کامل با ترمینال، ناوبری و ترکیب فرمان‌ها با pipe",
+    "مدیریت کاربران، گروه‌ها و مجوزهای rwx بدون ترس",
+    "نوشتن سرویس‌های systemd خودترمیم و اسکریپت‌های Bash مهندسی‌شده",
+    "پیکربندی شبکه، Netplan و SSH امن با کلید",
+    "عیب‌یابی سیستماتیک با journalctl و شش‌قدم دیباگ",
+    "سخت‌سازی سرور با UFW و fail2ban و دفاع عمیق",
+  ],
+  lessons: [...finalizeLessons(UBUNTU_RICH), ...UBUNTU_COMPACT],
+};
+
 /*
   نگاشت شناسه دوره‌های data.ts به محتوای آموزشی
 */
@@ -199,6 +218,7 @@ const RAW: Record<string, CourseContent> = {
   dp: build(pick("n-dp"), "dp"),
   net: build(pick("n-net"), "net"),
   vibe: VIBE,
+  linux: LINUX,
 };
 
 export const COURSE_CONTENT: Record<string, CourseContent> = RAW;

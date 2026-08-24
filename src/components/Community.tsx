@@ -30,7 +30,7 @@ export default function Community() {
             desc="مدرسان بیت‌کد مدرسِ صرف نیستند؛ مهندس‌هایی‌اند که روزی در همین مسیر بودند و حالا کدریوی می‌کنند، نه فقط تدریس."
           />
 
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 mt-14">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-14">
             {mentors.map((m, i) => (
               <Reveal key={m.name} delay={i * 100}>
                 <article className={`group corners h-full border border-linec bg-night-900/70 rounded-md p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(2,8,16,0.5)] ${CARD_HOVER[m.hue]}`}>
