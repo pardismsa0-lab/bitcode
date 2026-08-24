@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { fa, faGroup, usePrefersReducedMotion } from "../lib/hooks";
+import { BfsDfs, DpTable, LruCache, OnionArch, Quorum, SeqDiagram, TlsHandshake } from "./Visuals2";
 
 /* ---------- قاب مشترک ---------- */
 function Frame({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
@@ -1768,6 +1769,13 @@ const REGISTRY: Record<string, () => ReactNode> = {
   consistentHash: () => <ConsistentHash />,
   renderPath: () => <RenderPath />,
   flexPlay: () => <FlexPlay />,
+  bfsDfs: () => <BfsDfs />,
+  dpTable: () => <DpTable />,
+  lruCache: () => <LruCache />,
+  tlsHandshake: () => <TlsHandshake />,
+  quorum: () => <Quorum />,
+  seqDiagram: () => <SeqDiagram />,
+  onionArch: () => <OnionArch />,
 };
 
 /* ---------- حلقه وایب کدینگ ---------- */
