@@ -14,6 +14,13 @@ import { BULK3 } from "./bulk3";
 import { BULK4 } from "./bulk4";
 import { BULK5 } from "./bulk5";
 import { BULK6 } from "./bulk6";
+import { EXPAND1 } from "./expand1";
+import { EXPAND2 } from "./expand2";
+import { EXPAND3 } from "./expand3";
+import { EXPAND4 } from "./expand4";
+import { EXPAND5 } from "./expand5";
+import { EXPAND6 } from "./expand6";
+import { expandLesson, type LessonExpand } from "./gen";
 import { DEEP_A } from "./deepdive1";
 import { DEEP_B } from "./deepdive2";
 import { DEEP_C } from "./deepdive3";
@@ -93,9 +100,21 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
 };
 
 /* ---------- درس‌های حجمی (bulk) هر دوره ---------- */
-const BULK: Record<string, Lesson[]> = {
+const EXPAND: Record<string, LessonExpand> = {
+  ...EXPAND1, ...EXPAND2, ...EXPAND3, ...EXPAND4, ...EXPAND5, ...EXPAND6,
+};
+
+const RAW_BULK: Record<string, Lesson[]> = {
   ...BULK1, ...BULK2, ...BULK3, ...BULK4, ...BULK5, ...BULK6,
 };
+
+/* هر درس فشرده‌ای که لایه گسترش دارد، به درس مفصل تبدیل می‌شود */
+const BULK: Record<string, Lesson[]> = Object.fromEntries(
+  Object.entries(RAW_BULK).map(([k, ls]) => [
+    k,
+    ls.map((l) => (EXPAND[l.id] ? expandLesson(l, EXPAND[l.id]) : l)),
+  ])
+);
 
 /* ---------- درس‌های تکمیلی هر دوره ---------- */
 const COURSE_EXTRAS: Record<string, string[]> = {
