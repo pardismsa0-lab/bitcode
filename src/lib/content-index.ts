@@ -28,6 +28,7 @@ import { RICH6 } from "./rich6";
 import { RICH7_NET } from "./rich7";
 import { UBUNTU_COMPACT, UBUNTU_RICH } from "./ubuntu-course";
 import { DIST_COMPACT, DIST_RICH } from "./dist-course";
+import { WEB_COMPACT, WEB_RICH } from "./web-course";
 
 /* درس‌های «غنی» — استاندارد آموزشی کامل؛ اولویت هر دوره */
 const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4, ...RICH5, ...RICH6 };
@@ -79,6 +80,8 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
   "ub-r4": [{ visual: "chmodCalc", title: "شبیه‌ساز: ماشین‌حساب chmod", pos: 2 }],
   "ds-r3": [{ visual: "raftElection", title: "شبیه‌ساز: انتخاب رهبر Raft", pos: 2 }],
   "ds-r5": [{ visual: "consistentHash", title: "شبیه‌ساز: حلقه هش‌گذاری سازگار", pos: 2 }],
+  "web-r1": [{ visual: "renderPath", title: "شبیه‌ساز: مسیر رندر بحرانی", pos: 2 }],
+  "web-r3": [{ visual: "flexPlay", title: "زمین‌بازی: Flexbox زنده", pos: 2 }],
   "n-os-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: Stack و Heap", pos: 2 }],
   "n-os-l2": [{ visual: "deadlock", title: "شبیه‌ساز: بن‌بست", pos: 2 }],
   "n-cpp-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: حافظه Stack و Heap", pos: 2 }],
@@ -242,5 +245,24 @@ const DIST: CourseContent = {
 };
 
 RAW.dist = DIST;
+
+/* ---------- دوره طراحی و توسعه وب ---------- */
+const WEB: CourseContent = {
+  id: "web",
+  intro:
+    "وب بزرگ‌ترین سکوی نرم‌افزاری تاریخ است — و درک عمیقش یعنی فهمیدن هر دو سمت میز: مرورگری که کد را به تصویر تبدیل می‌کند و سروری که داده و منطق را نگه می‌دارد. این دوره از آناتومی بارگذاری صفحه و HTML معنایی شروع می‌شود، با CSS مدرن و ریسپانسیو و جاوااسکریپتِ مرورگر ادامه می‌یابد و به طراحی REST API، معماری لایه‌ای بک‌اند، عملکرد و استراتژی‌های رندر می‌رسد. نه فریم‌ورک‌بازی — مفاهیمی که زیرِ هر فریم‌ورکی ثابت می‌مانند.",
+  outcomes: [
+    "فهم مسیر رندر بحرانی و بهینه‌سازی بارگذاری صفحه",
+    "نوشتن HTML معنایی و دسترس‌پذیر که SEO و صفحه‌خوان‌ها دوستش دارند",
+    "تسلط بر Flexbox، Grid و طراحی ریسپانسیو موبایل‌اول",
+    "درک DOM، رویدادها و حلقه رویداد مرورگر — زیرِ هر فریم‌ورکی",
+    "مدیریت هویت و حالت: Cookie، Session و JWT با نگاه امنیتی",
+    "طراحی REST API قابل‌حدس و معماری لایه‌ای بک‌اند",
+    "سنجش و بهبود Core Web Vitals و انتخاب استراتژی رندر درست",
+  ],
+  lessons: [...WEB_RICH, ...WEB_COMPACT],
+};
+
+RAW.web = WEB;
 
 export const COURSE_CONTENT: Record<string, CourseContent> = RAW;

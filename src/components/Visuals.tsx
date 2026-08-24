@@ -1502,6 +1502,243 @@ function ConsistentHash() {
   );
 }
 
+/* ---------- مسیر رندر بحرانی ---------- */
+function RenderPath() {
+  const reduced = usePrefersReducedMotion();
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(false);
+
+  const steps = [
+    { t: "بایت‌های HTML", d: "پاسخ سرور می‌رسد: متنی از تگ‌ها. هنوز هیچ «صفحه‌ای» وجود ندارد — فقط کاراکتر." },
+    { t: "درخت DOM", d: "پارسر تگ‌ها را به گره تبدیل می‌کند و ساختار درختی صفحه شکل می‌گیرد — بدون هیچ ظاهری." },
+    { t: "درخت CSSOM", d: "همزمان، استایل‌ها پارس می‌شوند: کدام گره چه رنگ، اندازه و چیدمانی دارد." },
+    { t: "درخت رندر", d: "DOM + CSSOM ترکیب می‌شوند؛ عناصر نامرئی (display:none) از درخت حذف می‌شوند." },
+    { t: "Layout", d: "جای دقیق و اندازه هر جعبه حساب می‌شود — مختصاتِ هر پیکسلِ محتوا." },
+    { t: "Paint", d: "مرورگر پیکسل‌ها را می‌کشد: رنگ‌ها، متن، سایه‌ها — تصویر صفحه آماده می‌شود." },
+    { t: "Composite", d: "لایه‌ها روی GPU ترکیب می‌شوند و فریم نهایی روی نمایشگر می‌نشیند. تمام!" },
+  ];
+
+  useTicker(playing && !reduced, 1700, () => setStep((s) => (s + 1) % steps.length));
+
+  const boxCls = (extra = "") =>
+    `border transition-all duration-500 ${
+      step >= 5 ? "border-night-600" : step >= 1 ? "border-faint/70" : "border-transparent"
+    } ${extra}`;
+  const fill = (from: string, to = "") => (step >= 5 ? from : "bg-transparent") + (to ? " " + to : "");
+
+  return (
+    <Frame title="شبیه‌ساز: مسیر رندر بحرانی — از بایت تا پیکسل" hint="قدم‌به‌قدم جلو برو (یا پخش خودکار) و ببین مرورگر چطور کد را به تصویر تبدیل می‌کند — و عنصر display:none در مرحله ۴ از درخت حذف می‌شود.">
+      <div className="grid md:grid-cols-2 gap-5">
+        {/* صحنه مرورگر */}
+        <div className="rounded-md border border-linec bg-night-900 overflow-hidden" dir="ltr">
+          <div className="flex items-center gap-1.5 px-3 h-8 border-b border-linec bg-night-800/70">
+            <span className="w-2 h-2 rounded-full bg-coral/70" />
+            <span className="w-2 h-2 rounded-full bg-amber/70" />
+            <span className="w-2 h-2 rounded-full bg-teal/70" />
+            <span className="font-code text-[9px] text-faint ml-2">bitcode.academy</span>
+            {step === 6 && (
+              <span className="ml-auto font-code text-[9px] text-teal border border-teal/40 rounded px-1.5 py-0.5 pop-in">60fps ✓</span>
+            )}
+          </div>
+
+          {step === 0 ? (
+            <pre className="font-code text-[10px] leading-6 text-dim p-4 min-h-[240px] overflow-hidden">
+{`<html>
+  <head><link rel="stylesheet"
+    href="app.css"></head>
+  <body>
+    <header>بیت‌کد</header>
+    <main>
+      <div class="card">ساختمان داده</div>
+      <div class="card">شبکه</div>
+      <div class="hidden">تبلیغ</div>
+    </main>
+    <footer>© ۱۴۰۵</footer>
+  </body>
+</html>`}
+            </pre>
+          ) : (
+            <div className={`p-4 min-h-[240px] flex flex-col gap-2 relative ${step >= 6 ? "shadow-[inset_0_0_40px_rgba(63,216,182,0.06)]" : ""}`}>
+              {/* header */}
+              <div className={`${boxCls()} rounded h-9 relative ${fill("bg-night-700")}`}>
+                {step >= 5 && <span className="absolute inset-0 grid place-items-center font-display text-[13px] text-amber">بیت‌کد</span>}
+                {step === 4 && <span className="absolute -left-1 -top-2 font-code text-[8px] text-cyan bg-night-900 px-1">320×36</span>}
+              </div>
+              {/* cards */}
+              <div className="grid grid-cols-2 gap-2 flex-1">
+                {["ساختمان داده", "شبکه"].map((c, i) => (
+                  <div key={c} className={`${boxCls()} rounded relative min-h-[72px] ${fill(i ? "bg-teal/15" : "bg-cyan/15")}`}>
+                    {step >= 5 && <span className="absolute inset-0 grid place-items-center text-[11px] font-bold text-mist">{c}</span>}
+                    {step === 4 && <span className="absolute -left-1 -top-2 font-code text-[8px] text-cyan bg-night-900 px-1">152×72</span>}
+                  </div>
+                ))}
+              </div>
+              {/* عنصر hidden */}
+              <div
+                className={`${boxCls("border-dashed")} rounded h-8 grid place-items-center text-[10px] transition-all duration-700 ${
+                  step >= 3 ? "opacity-25 scale-y-50" : "opacity-70"
+                } ${step < 3 ? "bg-night-800/50" : ""}`}
+              >
+                <span className={step >= 3 ? "line-through text-coral" : "text-faint"}>display: none — حذف از درخت رندر</span>
+              </div>
+              {/* footer */}
+              <div className={`${boxCls()} rounded h-7 relative ${fill("bg-night-800")}`}>
+                {step >= 5 && <span className="absolute inset-0 grid place-items-center text-[10px] text-faint">© ۱۴۰۵</span>}
+              </div>
+
+              {/* برچسب مرحله */}
+              <span key={step} className="absolute bottom-2 right-2 font-code text-[9px] text-night-900 bg-amber rounded px-2 py-0.5 pop-in" dir="rtl">
+                {steps[step].t}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* مراحل */}
+        <div className="flex flex-col gap-4">
+          <div className="space-y-1.5 flex-1">
+            {steps.map((s, i) => (
+              <button
+                key={s.t}
+                onClick={() => { setStep(i); setPlaying(false); }}
+                className={`w-full text-right rounded-md border px-3.5 py-2 transition-all duration-300 cursor-pointer flex items-center gap-3 ${
+                  i === step
+                    ? "border-amber/60 bg-amber/10"
+                    : i < step
+                      ? "border-linec opacity-60"
+                      : "border-linec hover:border-mist/25"
+                }`}
+              >
+                <span className={`shrink-0 w-6 h-6 grid place-items-center rounded-full border font-code text-[10px] ${
+                  i < step ? "bg-teal border-teal text-night-900" : i === step ? "border-amber text-amber" : "border-linec text-faint"
+                }`}>
+                  {i < step ? "✓" : fa(i + 1)}
+                </span>
+                <span className={`text-[12.5px] font-bold ${i === step ? "text-amber" : "text-dim"}`}>{s.t}</span>
+              </button>
+            ))}
+          </div>
+
+          <div key={step} className="pop-in border border-linec bg-night-800/60 rounded-md p-4 min-h-[76px]">
+            <p className="text-dim text-[12.5px] leading-7">{steps[step].d}</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <VBtn onClick={() => { setStep((s) => (s + 1) % steps.length); setPlaying(false); }} disabled={playing}>
+              قدم بعدی
+            </VBtn>
+            <VBtn onClick={() => setPlaying((p) => !p)} active={playing}>
+              {playing ? "توقف" : "پخش خودکار"}
+            </VBtn>
+            <VBtn onClick={() => { setStep(0); setPlaying(false); }}>از اول</VBtn>
+          </div>
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
+/* ---------- زمین‌بازی Flexbox ---------- */
+function FlexPlay() {
+  const [dir, setDir] = useState<"row" | "column">("row");
+  const [jc, setJc] = useState("center");
+  const [ai, setAi] = useState("center");
+  const [wrap, setWrap] = useState(false);
+  const [gap, setGap] = useState(10);
+
+  const JC = ["flex-start", "center", "flex-end", "space-between", "space-around"];
+  const AI = ["stretch", "flex-start", "center", "flex-end"];
+  const items = [
+    { n: 1, c: "bg-amber/80", h: "h-10" },
+    { n: 2, c: "bg-teal/80", h: "h-16" },
+    { n: 3, c: "bg-cyan/80", h: "h-8" },
+    { n: 4, c: "bg-coral/80", h: "h-12" },
+    { n: 5, c: "bg-mist/70", h: "h-9" },
+  ];
+
+  const Seg = ({ label, opts, val, onChange }: { label: string; opts: string[]; val: string; onChange: (v: string) => void }) => (
+    <div>
+      <p className="text-[11px] text-faint font-code mb-1.5" dir="ltr">{label}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {opts.map((o) => (
+          <button
+            key={o}
+            onClick={() => onChange(o)}
+            className={`font-code text-[10.5px] rounded border px-2 py-1 transition-all duration-200 cursor-pointer ${
+              val === o ? "bg-amber text-night-900 border-amber" : "border-linec text-dim hover:border-amber/50 hover:text-mist"
+            }`}
+            dir="ltr"
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <Frame title="زمین‌بازی Flexbox — بچین و ببین" hint="گزینه‌ها را عوض کن و ببین جعبه‌ها چطور واکنش نشان می‌دهند؛ کد معادل هم زنده نوشته می‌شود. این یعنی درک Flexbox، نه حفظ‌کردنش.">
+      <div className="grid md:grid-cols-2 gap-5">
+        <div>
+          <div className="space-y-4">
+            <Seg label="flex-direction" opts={["row", "column"]} val={dir} onChange={(v) => setDir(v as typeof dir)} />
+            <Seg label="justify-content" opts={JC} val={jc} onChange={setJc} />
+            <Seg label="align-items" opts={AI} val={ai} onChange={setAi} />
+            <div className="flex items-center gap-5 flex-wrap">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={wrap}
+                  onChange={(e) => setWrap(e.target.checked)}
+                  className="accent-[#ffb454] w-4 h-4"
+                />
+                <span className="font-code text-[11px] text-dim" dir="ltr">flex-wrap: wrap</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <span className="font-code text-[11px] text-dim" dir="ltr">gap: {fa(gap)}px</span>
+                <input type="range" min={0} max={32} value={gap} onChange={(e) => setGap(+e.target.value)} className="w-24 accent-[#ffb454]" dir="ltr" />
+              </label>
+            </div>
+          </div>
+
+          <pre className="mt-5 rounded-md border border-linec bg-night-900 p-4 font-code text-[11px] leading-6 text-dim overflow-x-auto" dir="ltr">
+{`.container {
+  display: flex;
+  flex-direction: ${dir};
+  justify-content: ${jc};
+  align-items: ${ai};${wrap ? "\n  flex-wrap: wrap;" : ""}
+  gap: ${gap}px;
+}`}
+          </pre>
+        </div>
+
+        <div
+          className="rounded-md border-2 border-dashed border-amber/30 bg-night-900/60 p-3 min-h-[300px] transition-all duration-500"
+          style={{
+            display: "flex",
+            flexDirection: dir,
+            justifyContent: jc,
+            alignItems: ai,
+            flexWrap: wrap ? "wrap" : "nowrap",
+            gap: `${gap}px`,
+          }}
+          dir="ltr"
+        >
+          {items.map((it) => (
+            <div
+              key={it.n}
+              className={`${it.c} ${ai === "stretch" ? "" : it.h} w-14 rounded grid place-items-center font-code font-bold text-night-900 text-sm transition-all duration-500 ${wrap ? "" : "shrink"}`}
+              style={ai === "stretch" ? { alignSelf: "stretch", minHeight: 40 } : undefined}
+            >
+              {it.n}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
 /* ---------- رجیستری ---------- */
 const REGISTRY: Record<string, () => ReactNode> = {
   bigo: () => <BigO />,
@@ -1529,6 +1766,8 @@ const REGISTRY: Record<string, () => ReactNode> = {
   fhsTree: () => <FhsTree />,
   raftElection: () => <RaftElection />,
   consistentHash: () => <ConsistentHash />,
+  renderPath: () => <RenderPath />,
+  flexPlay: () => <FlexPlay />,
 };
 
 /* ---------- حلقه وایب کدینگ ---------- */
