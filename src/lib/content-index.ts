@@ -58,7 +58,7 @@ const lessonById = new Map(
 );
 
 /* لایه «عمیق‌تر»: متن تکمیلی مفصل برای درس‌های پایه */
-const DEEP: Record<string, Block[]> = { ...DEEP_A, ...DEEP_B, ...DEEP_C, ...DEEP_D, ...DEEP_E };
+const DEEP: Record<string, Block[]> = { ...DEEP_A, ...DEEP_B, ...DEEP_C, ...DEEP_D, ...DEEP_E, ...DEEP_F };
 
 const pick = (id: string): CourseContent => {
   const c = byId.get(id);
