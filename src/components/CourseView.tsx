@@ -273,7 +273,7 @@ export default function CourseView({ courseId, onBack, completed, onToggleLesson
   const topRef = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
 
-  if (!course || !content) {
+  if (!course || !content || content.lessons.length === 0) {
     return (
       <main className="max-w-3xl mx-auto px-4 pt-48 pb-32 text-center">
         <p className="font-display text-4xl text-mist">محتوای این دوره در حال آماده‌سازی است</p>

@@ -1,6 +1,6 @@
 export type Hue = "amber" | "teal" | "cyan" | "coral";
 
-export type CatId = "prog" | "cs" | "se" | "web" | "data" | "infra";
+export type CatId = "prog" | "cs" | "se" | "web" | "data" | "infra" | "mkt";
 
 export interface Course {
   id: string;
@@ -26,6 +26,7 @@ export const categories: { id: CatId | "all"; label: string }[] = [
   { id: "web", label: "توسعه وب" },
   { id: "data", label: "داده و هوش مصنوعی" },
   { id: "infra", label: "زیرساخت و DevOps" },
+  { id: "mkt", label: "بازاریابی دیجیتال" },
 ];
 
 export const courses: Course[] = [
@@ -50,6 +51,7 @@ export const courses: Course[] = [
   { id: "vibe", title: "وایب کدینگ؛ برنامه‌نویسی هم‌نشین با هوش مصنوعی", cat: "data", level: "مقدماتی", hours: 34, sessions: 22, students: 6240, rating: 4.9, price: 0, popular: true, instructor: "مهندس کیان مرادی", skills: ["Prompt Engineering", "Cursor و Copilot", "ساخت MVP", "Agentها"], hue: "coral" },
   { id: "linux", title: "لینوکس اوبونتو؛ از نصب تا مدیریت سرور", cat: "infra", level: "مقدماتی", hours: 60, sessions: 32, students: 7410, rating: 4.9, price: 0, popular: true, instructor: "مهندس سامان کیانی", skills: ["Ubuntu Server", "Bash Scripting", "Systemd", "SSH و شبکه", "امنیت و سخت‌سازی"], hue: "amber" },
   { id: "dist", title: "سیستم‌های توزیع‌شده؛ از تئوری تا معماری‌های واقعی", cat: "cs", level: "پیشرفته", hours: 66, sessions: 36, students: 2180, rating: 4.9, price: 3600000, popular: true, instructor: "دکتر آرش کمالی", skills: ["Raft و اجماع", "CAP و Quorum", "Sharding", "Saga و تراکنش", "Circuit Breaker"], hue: "coral" },
+  { id: "mkt", title: "دیجیتال مارکتینگ جامع؛ از استراتژی تا اجرا", cat: "mkt", level: "متوسط", hours: 72, sessions: 40, students: 5620, rating: 4.9, price: 0, popular: true, instructor: "مهندس لیلا احمدی", skills: ["قیف بازاریابی", "SEO و محتوا", "شبکه‌های اجتماعی", "Google Ads", "آنالیتیکس و CRO"], hue: "amber" },
 ];
 
 export interface Phase {
@@ -109,6 +111,7 @@ export const mentors: Mentor[] = [
   { name: "مهندس نگار رستمی", role: "مهندس فرانت‌اند و DevOps · منتور پروژه‌های تیمی", tags: ["React", "Docker", "CI/CD"], coursesCount: 5, students: 5230, rating: 4.9, initials: "نر", hue: "coral" },
   { name: "مهندس سامان کیانی", role: "مدیر سیستم ارشد · ۱۰ سال مدیریت سرورهای لینوکسی در مقیاس تولید", tags: ["Ubuntu", "Systemd", "Bash", "امنیت"], coursesCount: 3, students: 7410, rating: 4.9, initials: "سا", hue: "amber" },
   { name: "مهندس کیان مرادی", role: "متخصص توسعه با هوش مصنوعی · سازنده ۱۲ محصول Vibe-first", tags: ["Vibe Coding", "LLM و Agent", "Prompt Design"], coursesCount: 2, students: 6240, rating: 4.9, initials: "کم", hue: "coral" },
+  { name: "مهندس لیلا احمدی", role: "استراتژیست ارشد رشد · ۹ سال مدیریت کمپین‌های میلیونی SEO و Google Ads", tags: ["SEO", "CRO", "Growth", "Analytics"], coursesCount: 2, students: 5620, rating: 4.9, initials: "لا", hue: "teal" },
 ];
 
 export interface Testimonial {

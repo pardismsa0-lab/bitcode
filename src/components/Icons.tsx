@@ -90,6 +90,9 @@ export const IconBrain = ({ className }: { className?: string }) => (
 export const IconServer = ({ className }: { className?: string }) => (
   <I className={className}><rect x="3.5" y="4" width="17" height="6.5" rx="1.8" /><rect x="3.5" y="13.5" width="17" height="6.5" rx="1.8" /><circle cx="7.5" cy="7.2" r="0.6" fill="currentColor" /><circle cx="7.5" cy="16.8" r="0.6" fill="currentColor" /><path d="M11 7.2h6M11 16.8h6" /></I>
 );
+export const IconMegaphone = ({ className }: { className?: string }) => (
+  <I className={className}><path d="M3 10.5v3a1 1 0 0 0 1 1h2.5l3.5 4.5a.8.8 0 0 0 1.5-.5V5.5a.8.8 0 0 0-1.5-.5L6.5 9.5H4a1 1 0 0 0-1 1Z" /><path d="M15 9a3.5 3.5 0 0 1 0 6" /><path d="M17.5 6.5a7 7 0 0 1 0 11" /></I>
+);
 
 export function CatIcon({ k, className }: { k: string; className?: string }) {
   switch (k) {
@@ -99,6 +102,7 @@ export function CatIcon({ k, className }: { k: string; className?: string }) {
     case "web": return <IconGlobe className={className} />;
     case "data": return <IconBrain className={className} />;
     case "infra": return <IconServer className={className} />;
+    case "mkt": return <IconMegaphone className={className} />;
     default: return <IconCode className={className} />;
   }
 }

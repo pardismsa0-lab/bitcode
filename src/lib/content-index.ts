@@ -27,6 +27,7 @@ import { EXPAND10 } from "./expand10";
 import { EXPAND11 } from "./expand11";
 import { EXPAND12 } from "./expand12";
 import { EXPAND13 } from "./expand13";
+import { EXPAND14 } from "./expand14";
 import { expandLesson, type LessonExpand } from "./gen";
 import { DEEP_A } from "./deepdive1";
 import { DEEP_B } from "./deepdive2";
@@ -44,6 +45,7 @@ import { RICH7_NET } from "./rich7";
 import { UBUNTU_COMPACT, UBUNTU_RICH } from "./ubuntu-course";
 import { DIST_COMPACT, DIST_RICH } from "./dist-course";
 import { WEB_COMPACT, WEB_RICH } from "./web-course";
+import { MKT_COMPACT, MKT_RICH } from "./mkt-course";
 
 /* درس‌های «غنی» — استاندارد آموزشی کامل؛ اولویت هر دوره */
 const RICH: Record<string, Lesson[]> = { ...RICH1, ...RICH2, ...RICH3, ...RICH4, ...RICH5, ...RICH6 };
@@ -57,16 +59,29 @@ const lessonById = new Map(
 );
 
 /* لایه «عمیق‌تر»: متن تکمیلی مفصل برای درس‌های پایه */
-const DEEP: Record<string, Block[]> = { ...DEEP_A, ...DEEP_B, ...DEEP_C, ...DEEP_D, ...DEEP_E };
+const DEEP: Record<string, Block[]> = { ...DEEP_A, ...DEEP_B, ...DEEP_C, ...DEEP_D, ...DEEP_E, ...DEEP_F };
 
+/* هیچ‌گاه در زمان بارگذاری استثنا پرتاب نمی‌کنیم — امنیت کامل Preview */
 const pick = (id: string): CourseContent => {
   const c = byId.get(id);
-  if (!c) throw new Error(`محتوای ${id} پیدا نشد`);
+  if (!c) {
+    if (typeof console !== "undefined") console.warn(`[bitcode] محتوای ${id} پیدا نشد`);
+    return { id, intro: "محتوای این دوره در حال آماده‌سازی است.", outcomes: [], lessons: [] } as CourseContent;
+  }
   return c;
 };
 const lesson = (id: string): Lesson => {
   const l = lessonById.get(id);
-  if (!l) throw new Error(`درس ${id} پیدا نشد`);
+  if (!l) {
+    if (typeof console !== "undefined") console.warn(`[bitcode] درس ${id} پیدا نشد`);
+    return {
+      id,
+      title: "درس در حال آماده‌سازی",
+      minutes: 30,
+      blocks: [{ k: "p", t: "محتوای این درس به‌زودی اضافه می‌شود." }],
+      quiz: [],
+    };
+  }
   return l;
 };
 
@@ -104,13 +119,15 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
   "c11-l2": [{ visual: "hashTable", title: "شبیه‌ساز: ایندکس، هشِ دیتابیس", pos: 2 }],
   "c2-l1": [{ visual: "stackHeap", title: "شبیه‌ساز: متغیر و حافظه", pos: 3 }],
   "v-l1": [{ visual: "vibeLoop", title: "شبیه‌ساز: حلقه وایب کدینگ", pos: 2 }],
+  "mkt-r1": [{ visual: "mktFunnel", title: "شبیه‌ساز: قیف بازاریابی", pos: 2 }],
+  "mkt-r8": [{ visual: "abTestCalc", title: "ابزار تعاملی: ماشین‌حساب A/B Test", pos: 2 }],
 };
 
 /* ---------- درس‌های حجمی (bulk) هر دوره ---------- */
 const EXPAND: Record<string, LessonExpand> = {
   ...EXPAND1, ...EXPAND2, ...EXPAND3, ...EXPAND4, ...EXPAND5, ...EXPAND6,
   ...EXPAND7, ...EXPAND8, ...EXPAND9, ...EXPAND10, ...EXPAND11, ...EXPAND12,
-  ...EXPAND13,
+  ...EXPAND13, ...EXPAND14,
 };
 
 const RAW_BULK: Record<string, Lesson[]> = {
@@ -293,5 +310,25 @@ const WEB: CourseContent = {
 };
 
 RAW.web = WEB;
+
+/* ---------- دوره دیجیتال مارکتینگ ---------- */
+const MKT: CourseContent = {
+  id: "mkt",
+  intro:
+    "دیجیتال مارکتینگ یعنی بازاریابیِ قابل‌اندازه‌گیری: جایی که هر کلیک، هر نمایش و هر خرید عدد دقیق دارد و تصمیم‌ها با داده گرفته می‌شوند نه سلیقه. این دوره از قیف بازاریابی و نقشه راه شروع می‌شود، با سئو، بازاریابی محتوایی و شبکه‌های اجتماعی ادامه می‌یابد و به گوگل ادز، آنالیتیکس، بهینه‌سازی نرخ تبدیل و گروت مارکتینگ می‌رسد — همراه با شبیه‌سازهای تعاملی قیف و A/B Test. چه بخواهی محصول خودت را بفروشی، چه وارد بازار کار بازاریابی شوی، این مسیر کامل است.",
+  outcomes: [
+    "درک قیف بازاریابی و چیدن کانال‌ها برای هر مرحله",
+    "سئو تکنیکال، محتوایی و خارجی + تحقیق کلمات کلیدی دم‌دراز",
+    "بازاریابی محتوایی با تقویم و محتوای evergreen",
+    "رشد ارگانیک در شبکه‌های اجتماعی و ساخت جامعه",
+    "ایمیل مارکتینگ و جریان‌های خودکار (سبد رهاشده، پرورش لید)",
+    "راه‌اندازی گوگل ادز با امتیاز کیفیت و محاسبه ROAS",
+    "تحلیل داده با آنالیتیکس و بهینه‌سازی قیف و صفحه فرود (CRO)",
+    "گروت مارکتینگ با حلقه‌های رشد و آزمایش مداوم",
+  ],
+  lessons: [...finalizeLessons(MKT_RICH), ...MKT_COMPACT],
+};
+
+RAW.mkt = MKT;
 
 export const COURSE_CONTENT: Record<string, CourseContent> = RAW;
