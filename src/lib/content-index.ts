@@ -60,14 +60,27 @@ const lessonById = new Map(
 /* لایه «عمیق‌تر»: متن تکمیلی مفصل برای درس‌های پایه */
 const DEEP: Record<string, Block[]> = { ...DEEP_A, ...DEEP_B, ...DEEP_C, ...DEEP_D, ...DEEP_E, ...DEEP_F };
 
+/* هیچ‌گاه در زمان بارگذاری استثنا پرتاب نمی‌کنیم — امنیت کامل Preview */
 const pick = (id: string): CourseContent => {
   const c = byId.get(id);
-  if (!c) throw new Error(`محتوای ${id} پیدا نشد`);
+  if (!c) {
+    if (typeof console !== "undefined") console.warn(`[bitcode] محتوای ${id} پیدا نشد`);
+    return { id, intro: "محتوای این دوره در حال آماده‌سازی است.", outcomes: [], lessons: [] } as CourseContent;
+  }
   return c;
 };
 const lesson = (id: string): Lesson => {
   const l = lessonById.get(id);
-  if (!l) throw new Error(`درس ${id} پیدا نشد`);
+  if (!l) {
+    if (typeof console !== "undefined") console.warn(`[bitcode] درس ${id} پیدا نشد`);
+    return {
+      id,
+      title: "درس در حال آماده‌سازی",
+      minutes: 30,
+      blocks: [{ k: "p", t: "محتوای این درس به‌زودی اضافه می‌شود." }],
+      quiz: [],
+    };
+  }
   return l;
 };
 
