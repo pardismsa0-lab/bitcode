@@ -27,6 +27,7 @@ import { EXPAND10 } from "./expand10";
 import { EXPAND11 } from "./expand11";
 import { EXPAND12 } from "./expand12";
 import { EXPAND13 } from "./expand13";
+import { EXPAND14 } from "./expand14";
 import { expandLesson, type LessonExpand } from "./gen";
 import { DEEP_A } from "./deepdive1";
 import { DEEP_B } from "./deepdive2";
@@ -110,7 +111,7 @@ const VISUALS: Record<string, { visual: string; title: string; pos: number }[]> 
 const EXPAND: Record<string, LessonExpand> = {
   ...EXPAND1, ...EXPAND2, ...EXPAND3, ...EXPAND4, ...EXPAND5, ...EXPAND6,
   ...EXPAND7, ...EXPAND8, ...EXPAND9, ...EXPAND10, ...EXPAND11, ...EXPAND12,
-  ...EXPAND13,
+  ...EXPAND13, ...EXPAND14,
 };
 
 const RAW_BULK: Record<string, Lesson[]> = {
