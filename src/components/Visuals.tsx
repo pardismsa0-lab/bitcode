@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { fa, faGroup, usePrefersReducedMotion } from "../lib/hooks";
 import { BfsDfs, DpTable, LruCache, OnionArch, Quorum, SeqDiagram, TlsHandshake } from "./Visuals2";
+import { AbTestCalc, MktFunnel } from "./Visuals3";
 
 /* ---------- قاب مشترک ---------- */
 function Frame({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
@@ -1776,6 +1777,8 @@ const REGISTRY: Record<string, () => ReactNode> = {
   quorum: () => <Quorum />,
   seqDiagram: () => <SeqDiagram />,
   onionArch: () => <OnionArch />,
+  mktFunnel: () => <MktFunnel />,
+  abTestCalc: () => <AbTestCalc />,
 };
 
 /* ---------- حلقه وایب کدینگ ---------- */
